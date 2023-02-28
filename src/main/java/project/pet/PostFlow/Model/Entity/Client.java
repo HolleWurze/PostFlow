@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.annotation.Id;
+import project.pet.PostFlow.Enum.Status;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -26,14 +26,19 @@ public class Client {
     @Column(name = "last_name")
     private String lastName;
 
+    @Column(name = "status")
+    private Status status;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "department_id")
     private Department department;
 
-    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY)
     List<Parcel> parcels = new ArrayList<>();
 
     @Column(unique = true)
     String uniqueNumber;
+
+
 
 }

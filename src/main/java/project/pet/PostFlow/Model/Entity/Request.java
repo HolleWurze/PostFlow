@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.annotation.Id;
 import project.pet.PostFlow.Enum.RequestType;
 import project.pet.PostFlow.Enum.Status;
 
@@ -21,11 +20,11 @@ public class Request {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "client_id", nullable = false)
+    @JoinColumn(name = "client_sender_id", nullable = false)
     private Client sender;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "client_id", nullable = false)
+    @JoinColumn(name = "client_recipient_id", nullable = false)
     private Client recipient;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)

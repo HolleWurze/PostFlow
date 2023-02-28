@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.annotation.Id;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -30,9 +29,9 @@ public class Employee {
     @JoinColumn(name = "department_id")
     private Department department;
 
-    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY)
     private List<Request> requests = new ArrayList<>();
 
-    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY)
     private List<Parcel> parcels = new ArrayList<>();
 }
