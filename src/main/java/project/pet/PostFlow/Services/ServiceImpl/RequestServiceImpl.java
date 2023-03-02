@@ -1,5 +1,6 @@
 package project.pet.PostFlow.Services.ServiceImpl;
 
+import org.springframework.stereotype.Service;
 import project.pet.PostFlow.Model.Entity.Request;
 import project.pet.PostFlow.Model.Repository.RequestRepository;
 import project.pet.PostFlow.Services.Service.RequestService;
@@ -7,6 +8,7 @@ import project.pet.PostFlow.Services.Service.RequestService;
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class RequestServiceImpl implements RequestService {
     private final RequestRepository requestRepository;
 

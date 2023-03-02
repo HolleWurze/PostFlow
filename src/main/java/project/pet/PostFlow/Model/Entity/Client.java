@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
-import project.pet.PostFlow.Enum.Status;
+import project.pet.PostFlow.Enum.ClientPriority;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -26,8 +26,8 @@ public class Client {
     @Column(name = "last_name")
     private String lastName;
 
-    @Column(name = "status")
-    private Status status;
+    @Column(name = "client_priority")
+    private ClientPriority clientPriority;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "department_id")
@@ -37,8 +37,5 @@ public class Client {
     List<Parcel> parcels = new ArrayList<>();
 
     @Column(unique = true)
-    String uniqueNumber;
-
-
-
+    String uniqueNumber; //нужен ли нам uniqueNumber если есть id
 }

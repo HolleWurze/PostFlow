@@ -40,4 +40,6 @@ public class Request {
 
     @Enumerated(EnumType.STRING)
     Status status;
+
+    private Integer waitingTime;
 }
