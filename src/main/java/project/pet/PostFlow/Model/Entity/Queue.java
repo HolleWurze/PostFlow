@@ -29,4 +29,5 @@ public class Queue {
 
     @OneToMany //насчет жадного режима, если currentRequest, то из листа запросов мы его должны удалить
     private List<Request> requests = new ArrayList<>();
+
 }

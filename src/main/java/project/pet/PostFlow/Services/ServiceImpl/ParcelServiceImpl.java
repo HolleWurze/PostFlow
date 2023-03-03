@@ -1,5 +1,7 @@
 package project.pet.PostFlow.Services.ServiceImpl;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import project.pet.PostFlow.Model.Entity.Parcel;
 import project.pet.PostFlow.Model.Repository.ParcelRepository;
@@ -7,13 +9,11 @@ import project.pet.PostFlow.Services.Service.ParcelService;
 
 import java.util.List;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class ParcelServiceImpl implements ParcelService {
     private final ParcelRepository parcelRepository;
-
-    public ParcelServiceImpl(ParcelRepository parcelRepository) {
-        this.parcelRepository = parcelRepository;
-    }
 
     @Override
     public Parcel getParcelById(Long id) {

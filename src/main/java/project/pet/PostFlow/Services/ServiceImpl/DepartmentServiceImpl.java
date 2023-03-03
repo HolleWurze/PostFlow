@@ -1,5 +1,7 @@
 package project.pet.PostFlow.Services.ServiceImpl;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import project.pet.PostFlow.Model.Entity.Department;
 import project.pet.PostFlow.Model.Entity.Employee;
@@ -12,18 +14,14 @@ import project.pet.PostFlow.Services.Service.DepartmentService;
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class DepartmentServiceImpl implements DepartmentService {
 
     private final DepartmentRepository departmentRepository;
     private final EmployeeRepository employeeRepository;
     private final ParcelRepository parcelRepository;
-
-    public DepartmentServiceImpl(DepartmentRepository departmentRepository, EmployeeRepository employeeRepository, ParcelRepository parcelRepository) {
-        this.departmentRepository = departmentRepository;
-        this.employeeRepository = employeeRepository;
-        this.parcelRepository = parcelRepository;
-    }
 
     @Override
     public Department createDepartment(Department department) {

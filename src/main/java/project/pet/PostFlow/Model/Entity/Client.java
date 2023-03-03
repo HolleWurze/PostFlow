@@ -29,6 +29,9 @@ public class Client {
     @Column(name = "client_priority")
     private ClientPriority clientPriority;
 
+    @Column(unique = true)
+    String uniqueNumber; //нужен ли нам uniqueNumber если есть id
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "department_id")
     private Department department;
@@ -36,6 +39,7 @@ public class Client {
     @OneToMany(fetch = FetchType.LAZY)
     List<Parcel> parcels = new ArrayList<>();
 
-    @Column(unique = true)
-    String uniqueNumber; //нужен ли нам uniqueNumber если есть id
+    @OneToMany(mappedBy = "client") // каскадное нам впринципе не нужно так как клиента мы не удалим из базы?
+    private List<Request> requests = new ArrayList<>();
+
 }

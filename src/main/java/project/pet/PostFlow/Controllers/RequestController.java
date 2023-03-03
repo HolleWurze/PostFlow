@@ -3,21 +3,34 @@ package project.pet.PostFlow.Controllers;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import project.pet.PostFlow.CustomException.NotFoundException;
 import project.pet.PostFlow.CustomException.ResourceNotFoundException;
+import project.pet.PostFlow.Enum.RequestType;
+import project.pet.PostFlow.Model.Entity.Client;
 import project.pet.PostFlow.Model.Entity.Request;
+import project.pet.PostFlow.Services.Service.ClientService;
 import project.pet.PostFlow.Services.Service.RequestService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/requests")
 public class RequestController {
     private RequestService requestService;
+    private ClientService clientService;
 
     @PostMapping("")
-    public ResponseEntity<Request> createRequest(@RequestBody Request request) {
-        Request createdRequest = requestService.createRequest(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdRequest);
+    public ResponseEntity<Request> createRequest(@RequestBody Map<String, String> requestParams) {
+        Long clientId = Long.parseLong(requestParams.get("clientId"));
+        Client client = clientService.getClientById(clientId);
+        if (client == null) {
+            throw new NotFoundException("Клиент с id " + clientId + " не найден");
+        }
+        RequestType requestType = RequestType.valueOf(requestParams.get("requestType"));
+        String appointmentTime = requestParams.get("appointmentTime");
+        Request request = requestService.createRequest(client, requestType, appointmentTime);
+        return ResponseEntity.status(HttpStatus.CREATED).body(request);
     }
 
     @GetMapping("/{id}")

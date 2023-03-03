@@ -7,6 +7,7 @@ spring:
       name: user
       password: user
   jpa:
+    open-in-view: false
     database: postgresql
     show-sql: false
     generate-ddl: true

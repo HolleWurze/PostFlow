@@ -1,5 +1,7 @@
 package project.pet.PostFlow.Services.ServiceImpl;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import project.pet.PostFlow.Model.Entity.Client;
 import project.pet.PostFlow.Model.Repository.ClientRepository;
@@ -8,13 +10,11 @@ import project.pet.PostFlow.Services.Service.ClientService;
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class ClientServiceImpl implements ClientService {
     private final ClientRepository clientRepository;
-
-    public ClientServiceImpl(ClientRepository clientRepository) {
-        this.clientRepository = clientRepository;
-    }
 
     @Override
     public List<Client> getAllClients() {
