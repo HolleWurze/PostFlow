@@ -6,7 +6,8 @@ import org.springframework.web.bind.annotation.*;
 import project.pet.PostFlow.CustomException.NotFoundException;
 import project.pet.PostFlow.CustomException.ResourceNotFoundException;
 import project.pet.PostFlow.Enum.RequestType;
-import project.pet.PostFlow.Model.Entity.Client;
+import project.pet.PostFlow.Model.DTO.ClientDTORequest;
+import project.pet.PostFlow.Model.DTO.RequestDTORequest;
 import project.pet.PostFlow.Model.Entity.Request;
 import project.pet.PostFlow.Services.Service.ClientService;
 import project.pet.PostFlow.Services.Service.RequestService;
@@ -23,7 +24,10 @@ public class RequestController {
     @PostMapping("")
     public ResponseEntity<Request> createRequest(@RequestBody Map<String, String> requestParams) {
         Long clientId = Long.parseLong(requestParams.get("clientId"));
-        Client client = clientService.getClientById(clientId);
+        ClientDTORequest client = clientService.getClientById(clientId);
+        if (client == null) {
+            throw new NotFoundException("Клиент с id " + clientId + " не найден");
+        }
         if (client == null) {
             throw new NotFoundException("Клиент с id " + clientId + " не найден");
         }
@@ -52,11 +56,11 @@ public class RequestController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Request> updateRequest(@PathVariable("id") Long id, @RequestBody Request request) throws ResourceNotFoundException {
-        request.setId(id);
-        Request updatedRequest = requestService.updateRequest(request);
+    public ResponseEntity<RequestDTORequest> updateRequest(@PathVariable("id") Long id, @RequestBody RequestDTORequest requestDTORequest) throws ResourceNotFoundException {
+        requestDTORequest.setId(id);
+        RequestDTORequest updatedRequest = requestService.updateRequest(requestDTORequest);
         if (updatedRequest == null) {
-            throw new ResourceNotFoundException("Request not found for this id :: " + id);
+            throw new ResourceNotFoundException("Запрос не найден с этим ID :: " + id);
         }
         return ResponseEntity.ok(updatedRequest);
     }
@@ -65,7 +69,7 @@ public class RequestController {
     public ResponseEntity<Void> deleteRequest(@PathVariable("id") Long id) throws ResourceNotFoundException {
         boolean deleted = requestService.deleteRequestById(id);
         if (!deleted) {
-            throw new ResourceNotFoundException("Request not found for this id :: " + id);
+            throw new ResourceNotFoundException("Запрос не найден с этим ID :: " + id);
         }
         return ResponseEntity.noContent().build();
     }

@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import project.pet.PostFlow.Enum.RequestType;
+import project.pet.PostFlow.Model.DTO.ClientDTORequest;
 import project.pet.PostFlow.Model.Entity.Client;
 import project.pet.PostFlow.Model.Entity.Request;
 import project.pet.PostFlow.Model.Repository.RequestRepository;
@@ -22,7 +23,7 @@ public class QueueController {
 
     @PostMapping("/add")
     public ResponseEntity<Request> addRequest(@RequestBody Request request) {
-        Client client = clientService.getClientById(request.getClient().getId());
+        ClientDTORequest client = clientService.getClientById(request.getClient().getId());
         if (client == null) {
             return ResponseEntity.notFound().build();
         }

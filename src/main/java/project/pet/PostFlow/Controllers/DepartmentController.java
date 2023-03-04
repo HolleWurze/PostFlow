@@ -1,6 +1,8 @@
 package project.pet.PostFlow.Controllers;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import project.pet.PostFlow.Model.DTO.DepartmentDTORequest;
 import project.pet.PostFlow.Model.Entity.Department;
 import project.pet.PostFlow.Model.Entity.Employee;
 import project.pet.PostFlow.Model.Entity.Parcel;
@@ -28,13 +30,13 @@ public class DepartmentController {
     }
 
     @PostMapping("")
-    public Department createDepartment(@RequestBody Department department) {
-        return departmentService.createDepartment(department);
+    public ResponseEntity<DepartmentDTORequest> createDepartment(@RequestBody DepartmentDTORequest departmentDTORequest) {
+        return ResponseEntity.ok(departmentService.createDepartment(departmentDTORequest));
     }
 
     @PutMapping("/{id}")
-    public Department updateDepartment(@PathVariable Long id, @RequestBody Department department) {
-        return departmentService.updateDepartment(id, department);
+    public ResponseEntity<DepartmentDTORequest> updateDepartment(@PathVariable Long id, @RequestBody DepartmentDTORequest departmentDTORequest) {
+        return ResponseEntity.ok(departmentService.updateDepartment(id, departmentDTORequest));
     }
 
     @DeleteMapping("/{id}")

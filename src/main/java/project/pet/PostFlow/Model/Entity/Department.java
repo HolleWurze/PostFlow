@@ -37,27 +37,27 @@ public class Department {
     @OneToMany(mappedBy = "department")
     private List<Request> requests;
 
-    public List<Employee> getEmployees() {
-        return employees;
-    }
-
-    public void setEmployees(List<Employee> employees) {
-        this.employees = employees;
-    }
-
-    public List<Parcel> getParcels() {
-        return parcels;
-    }
-
-    public void setParcels(List<Parcel> parcels) {
-        this.parcels = parcels;
-    }
-
-    public List<Request> getRequests() {
-        return requests;
-    }
-
-    public void setRequests(List<Request> requests) {
-        this.requests = requests;
-    }
+//    public List<Employee> getEmployees() {
+//        return employees;
+//    }
+//
+//    public void setEmployees(List<Employee> employees) {
+//        this.employees = employees;
+//    }
+//
+//    public List<Parcel> getParcels() {
+//        return parcels;
+//    }
+//
+//    public void setParcels(List<Parcel> parcels) {
+//        this.parcels = parcels;
+//    }
+//
+//    public List<Request> getRequests() {
+//        return requests;
+//    }
+//
+//    public void setRequests(List<Request> requests) {
+//        this.requests = requests;
+//    }
 }

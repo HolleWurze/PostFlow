@@ -1,8 +1,10 @@
 package project.pet.PostFlow.Controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import project.pet.PostFlow.Model.DTO.ParcelDTORequest;
 import project.pet.PostFlow.Model.Entity.Parcel;
 import project.pet.PostFlow.Services.Service.ParcelService;
 
@@ -12,6 +14,8 @@ import java.util.List;
 @RequestMapping("/parcels")
 public class ParcelController {
     private ParcelService parcelService;
+
+    private ObjectMapper mapper;
 
     public ParcelController(ParcelService parcelService) {
         this.parcelService = parcelService;
@@ -38,16 +42,16 @@ public class ParcelController {
     }
 
     @PostMapping
-    public ResponseEntity<Parcel> createParcel(@RequestBody Parcel parcel) {
-        Parcel createdParcel = parcelService.createParcel(parcel);
+    public ResponseEntity<ParcelDTORequest> createParcel(@RequestBody ParcelDTORequest parcelDTORequest) {
+        ParcelDTORequest createdParcel = parcelService.createParcel(parcelDTORequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdParcel);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Parcel> updateParcel(@PathVariable Long id, @RequestBody Parcel parcel) {
-        Parcel updatedParcel = parcelService.updateParcel(id, parcel);
+    public ResponseEntity<ParcelDTORequest> updateParcel(@PathVariable Long id, @RequestBody ParcelDTORequest parcelDTORequest) {
+        ParcelDTORequest updatedParcel = parcelService.updateParcel(id, parcelDTORequest);
         if (updatedParcel != null) {
-            return ResponseEntity.ok(updatedParcel);
+            return ResponseEntity.ok(parcelService.updateParcel(id, updatedParcel));
         } else {
             return ResponseEntity.notFound().build();
         }

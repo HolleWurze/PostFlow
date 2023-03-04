@@ -5,12 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import project.pet.PostFlow.Enum.ClientPriority;
 import project.pet.PostFlow.Enum.RequestType;
-import project.pet.PostFlow.Enum.Status;
+import project.pet.PostFlow.Model.DTO.ClientDTORequest;
 import project.pet.PostFlow.Model.Entity.Client;
 import project.pet.PostFlow.Model.Entity.Queue;
 import project.pet.PostFlow.Model.Entity.Request;
 import project.pet.PostFlow.Model.Repository.QueueRepository;
-import project.pet.PostFlow.Services.Service.ClientService;
 import project.pet.PostFlow.Services.Service.QueueService;
 import project.pet.PostFlow.Services.Service.RequestService;
 
@@ -25,26 +24,23 @@ import java.util.stream.Collectors;
 public class QueueServiceImpl implements QueueService {
 
     private final Map<Client, Request> queue = new LinkedHashMap<>();
-    private final List<Client> priorityClients = new ArrayList<>();
-
     private final QueueRepository queueRepository;
-    private final ClientService clientService;
+    //private final ClientService clientService;
     private final RequestService requestService;
-
     private final int averageWaitingTimeInMinutes;
 
 
     @Override
-    public Request addRequest(Client client, RequestType requestType, String appointmentTime) {
+    public Request addRequest(ClientDTORequest clientDTORequest, RequestType requestType, String appointmentTime) {
         // Если у клиента приоритетный статус то мы его сразу обслуживаем
-        if (client.getClientPriority() == ClientPriority.PRIORITY) {
-            Request request = requestService.createRequest(client, requestType, appointmentTime);
+        if (clientDTORequest.getClientPriority() == ClientPriority.PRIORITY) {
+            Request request = requestService.createRequest(clientDTORequest, requestType, appointmentTime);
             request.setWaitingTime(String.valueOf(Duration.ZERO));
             return request;
         }
 
         Queue queue = getOrCreateQueue();
-        Request request = requestService.createRequest(client, requestType, appointmentTime);
+        Request request = requestService.createRequest(clientDTORequest, requestType, appointmentTime);
         queue.getRequests().add(request);
         queue.setNextQueueNumber(queue.getNextQueueNumber() + 1);
         queueRepository.save(queue);
@@ -70,7 +66,7 @@ public class QueueServiceImpl implements QueueService {
         Queue queue = getOrCreateQueue();
         Request currentRequest = queue.getCurrentRequest();
         if (currentRequest != null) {
-            currentRequest.setStatus(Status.DONE);
+            currentRequest.setRequestType(RequestType.DONE);
             currentRequest.setAppointmentDateTime(LocalDateTime.now().toString());
             currentRequest.setWaitingTime(String.valueOf(Duration.between(LocalDateTime.parse(currentRequest.getAppointmentTime()),
                                             LocalDateTime.parse(currentRequest.getAppointmentDateTime()))));

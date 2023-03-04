@@ -1,13 +1,18 @@
 package project.pet.PostFlow.Services.ServiceImpl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import project.pet.PostFlow.Enum.ClientPriority;
 import project.pet.PostFlow.Enum.RequestType;
+import project.pet.PostFlow.Model.DTO.ClientDTORequest;
+import project.pet.PostFlow.Model.DTO.RequestDTORequest;
 import project.pet.PostFlow.Model.Entity.Client;
 import project.pet.PostFlow.Model.Entity.Request;
 import project.pet.PostFlow.Model.Repository.RequestRepository;
+import project.pet.PostFlow.Services.Service.ClientService;
 import project.pet.PostFlow.Services.Service.RequestService;
 
 import java.time.Duration;
@@ -21,17 +26,24 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class RequestServiceImpl implements RequestService {
     private final RequestRepository requestRepository;
+    private final ClientService clientService;
+    private ModelMapper modelMapper;
+
+    private final ObjectMapper mapper;
+
 
     @Override
-    public Request createRequest(Client client, RequestType requestType, String appointmentTime) {
+    public Request createRequest(ClientDTORequest clientDTORequest, RequestType requestType, String appointmentTime) {
+        Client client = modelMapper.map(clientDTORequest, Client.class);
         String appointmentDateTime = String.valueOf(LocalDateTime.parse(appointmentTime, DateTimeFormatter.ISO_DATE_TIME));
+
         Request request = new Request(client, requestType, String.valueOf(appointmentDateTime));
-        if (client.getClientPriority() == ClientPriority.PRIORITY) {
+        if (clientDTORequest.getClientPriority() == ClientPriority.PRIORITY) {
             request.setWaitingTime(String.valueOf(Duration.ZERO));
         } else {
             String estimatedTime = calculateEstimatedTime(request);
             request.setEstimatedTime(estimatedTime);
-            request.setWaitingTime(String.valueOf(getTotalWaitingTime(request.getClient())));
+            request.setWaitingTime(getTotalWaitingTime(request.getClient()));
         }
         return requestRepository.save(request);
     }
@@ -71,19 +83,19 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public Request updateRequest(Request request) {     //компилятор требует добавить в реквест @NotNUll, но реквест создается при создании запроса Client?
-        Request existingRequest = requestRepository.findById(request.getId())
+    public RequestDTORequest updateRequest(RequestDTORequest requestDTORequest) {     //компилятор требует добавить в реквест @NotNUll, но реквест создается при создании запроса Client?
+        Request existingRequest = requestRepository.findById(requestDTORequest.getId())
                 .orElse(null);
 
         if (existingRequest != null) {
-            existingRequest.setDepartment(request.getDepartment());
-            existingRequest.setParcel(request.getParcel());
-            existingRequest.setAppointmentDateTime(request.getAppointmentDateTime());
-            existingRequest.setWaitingTime(request.getWaitingTime());
-            existingRequest.setEstimatedTime(request.getEstimatedTime());
-            existingRequest.setStatus(request.getStatus());
+            existingRequest.setDepartment(requestDTORequest.getDepartment());
+            existingRequest.setParcel(requestDTORequest.getParcel());
+            existingRequest.setAppointmentDateTime(requestDTORequest.getAppointmentDateTime());
+            existingRequest.setWaitingTime(requestDTORequest.getWaitingTime());
+            existingRequest.setEstimatedTime(requestDTORequest.getEstimatedTime());
+            existingRequest.setRequestType(requestDTORequest.getRequestType());
 
-            return requestRepository.save(existingRequest);
+            return mapper.convertValue(requestRepository.save(existingRequest), RequestDTORequest.class);
         }
         return null;
     }

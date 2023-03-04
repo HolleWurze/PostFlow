@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import project.pet.PostFlow.Enum.RequestType;
-import project.pet.PostFlow.Enum.Status;
 
 import javax.persistence.*;
 
@@ -22,8 +21,8 @@ public class Request {
     @Enumerated(EnumType.STRING)
     RequestType requestType;
 
-    @Enumerated(EnumType.STRING)
-    Status status;
+//    @Enumerated(EnumType.STRING)
+//    Status status;
 
     private String appointmentTime;
 
@@ -41,7 +40,7 @@ public class Request {
     private Parcel parcel;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "client_sender_id", nullable = false)
+    @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
     public Request(Client client, RequestType requestType, String appointmentTime) {

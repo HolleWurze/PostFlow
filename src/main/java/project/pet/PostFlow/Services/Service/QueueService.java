@@ -1,6 +1,7 @@
 package project.pet.PostFlow.Services.Service;
 
 import project.pet.PostFlow.Enum.RequestType;
+import project.pet.PostFlow.Model.DTO.ClientDTORequest;
 import project.pet.PostFlow.Model.Entity.Client;
 import project.pet.PostFlow.Model.Entity.Request;
 
@@ -13,7 +14,7 @@ public interface QueueService {
     default int getAverageWaitingTimeInMinutes() {
         return AVERAGE_WAITING_TIME_IN_MINUTES;
     }
-    Request addRequest(Client client, RequestType requestType, String appointmentTime); //добавляю заявку в очередь на обслуживание и возвращаю добавленную заявку
+    Request addRequest(ClientDTORequest clientDTORequest, RequestType requestType, String appointmentTime); //добавляю заявку в очередь на обслуживание и возвращаю добавленную заявку
     Request getCurrentRequest(); //возвращаю текущую заявку из очереди на обслуживание
     void markCurrentRequestDone(); //помечаю текущую заявку как выполненную
     List<Request> getRequests(); //возвращаю список всех заявок в очереди на обслуживание

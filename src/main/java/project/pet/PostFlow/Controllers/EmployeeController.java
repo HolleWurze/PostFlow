@@ -3,6 +3,7 @@ package project.pet.PostFlow.Controllers;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import project.pet.PostFlow.CustomException.ResourceNotFoundException;
+import project.pet.PostFlow.Model.DTO.EmployeeDTORequest;
 import project.pet.PostFlow.Model.Entity.Employee;
 import project.pet.PostFlow.Services.Service.EmployeeService;
 
@@ -32,14 +33,13 @@ public class EmployeeController {
     }
 
     @PostMapping("")
-    public Employee createEmployee(@Valid @RequestBody Employee employee) {
-        return employeeService.createEmployee(employee);
+    public ResponseEntity<EmployeeDTORequest> createEmployee(@RequestBody EmployeeDTORequest employeeDTORequest) {
+        return ResponseEntity.ok(employeeService.createEmployee(employeeDTORequest));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Employee> updateEmployee(@PathVariable(value = "id") Long employeeId, @Valid @RequestBody Employee employeeDetails) throws ResourceNotFoundException {
-        Employee updatedEmployee = employeeService.updateEmployee(employeeId, employeeDetails);
-        return ResponseEntity.ok(updatedEmployee);
+    public ResponseEntity<EmployeeDTORequest> updateEmployee(@PathVariable(value = "id") Long employeeId, @Valid @RequestBody EmployeeDTORequest employeeDTORequest) throws ResourceNotFoundException {
+        return ResponseEntity.ok(employeeService.updateEmployee(employeeId, employeeDTORequest));
     }
 
     @DeleteMapping("/{id}")
