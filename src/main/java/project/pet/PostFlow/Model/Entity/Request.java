@@ -4,9 +4,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.annotation.Id;
 import project.pet.PostFlow.Enum.RequestType;
-import project.pet.PostFlow.Enum.Status;
 
 import javax.persistence.*;
 
@@ -20,14 +18,19 @@ public class Request {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "client_id", nullable = false)
-    private Client sender;
+    @Enumerated(EnumType.STRING)
+    RequestType requestType;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "client_id", nullable = false)
-    private Client recipient;
+//    @Enumerated(EnumType.STRING)
+//    Status status;
 
+    private String appointmentTime;
+
+    private String appointmentDateTime;
+
+    private String waitingTime;
+
+    private String EstimatedTime;
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "department_id", nullable = false)
     private Department department;
@@ -36,9 +39,13 @@ public class Request {
     @JoinColumn(name = "parcel_id", nullable = false)
     private Parcel parcel;
 
-    @Enumerated(EnumType.STRING)
-    RequestType requestType;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "client_id", nullable = false)
+    private Client client;
 
-    @Enumerated(EnumType.STRING)
-    Status status;
+    public Request(Client client, RequestType requestType, String appointmentTime) {
+        this.client = client;
+        this.requestType = requestType;
+        this.appointmentTime = appointmentTime;
+    }
 }

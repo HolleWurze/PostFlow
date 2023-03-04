@@ -1,10 +1,18 @@
+server:
+  port: 8090
+
 spring:
+  security:
+    user:
+      name: user
+      password: user
   jpa:
+    open-in-view: false
     database: postgresql
     show-sql: false
     generate-ddl: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -17,3 +25,9 @@ spring:
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
+
+    logging:
+      level:
+        root: DEBUG
+      console:
+        enabled: true

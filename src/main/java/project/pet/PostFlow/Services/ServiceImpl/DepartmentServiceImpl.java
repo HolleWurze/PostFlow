@@ -1,6 +1,13 @@
 package project.pet.PostFlow.Services.ServiceImpl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import project.pet.PostFlow.CustomException.AlreadyExistsException;
+import project.pet.PostFlow.Model.DTO.DepartmentDTORequest;
 import project.pet.PostFlow.Model.Entity.Department;
 import project.pet.PostFlow.Model.Entity.Employee;
 import project.pet.PostFlow.Model.Entity.Parcel;
@@ -12,22 +19,29 @@ import project.pet.PostFlow.Services.Service.DepartmentService;
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class DepartmentServiceImpl implements DepartmentService {
 
     private final DepartmentRepository departmentRepository;
     private final EmployeeRepository employeeRepository;
     private final ParcelRepository parcelRepository;
-
-    public DepartmentServiceImpl(DepartmentRepository departmentRepository, EmployeeRepository employeeRepository, ParcelRepository parcelRepository) {
-        this.departmentRepository = departmentRepository;
-        this.employeeRepository = employeeRepository;
-        this.parcelRepository = parcelRepository;
-    }
+    private ModelMapper modelMapper;
+    private final ObjectMapper mapper;
 
     @Override
-    public Department createDepartment(Department department) {
-        return departmentRepository.save(department);
+    public DepartmentDTORequest createDepartment(DepartmentDTORequest departmentDTORequest) {
+        departmentRepository.findById(departmentDTORequest.getId()).ifPresent(
+                c -> {
+                    throw new AlreadyExistsException("Отделение с таким ID уже существует ", HttpStatus.BAD_REQUEST);
+                }
+        );
+
+        Department department = mapper.convertValue(departmentDTORequest, Department.class);
+        Department save = departmentRepository.save(department);
+        return mapper.convertValue(save, DepartmentDTORequest.class);
+
     }
 
     @Override
@@ -38,25 +52,27 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     public Department getDepartmentById(Long id) {
         return departmentRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Department not found with id " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Отделение не найденно по текущему ID " + id));
     }
 
     @Override
-    public Department updateDepartment(Long id, Department department) {
+    public DepartmentDTORequest updateDepartment(Long id, DepartmentDTORequest departmentDTORequest) {
         Department existingDepartment = departmentRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Department not found with id " + id));
-        existingDepartment.setName(department.getName());
-        existingDepartment.setAddress(department.getAddress());
-        existingDepartment.setEmployees(department.getEmployees());
-        existingDepartment.setParcels(department.getParcels());
-        existingDepartment.setRequests(department.getRequests());
-        return departmentRepository.save(existingDepartment);
+                .orElseThrow(() -> new EntityNotFoundException("Отделение не найденно по текущему ID " + id));
+        existingDepartment.setName(departmentDTORequest.getName());
+        existingDepartment.setAddress(departmentDTORequest.getAddress());
+        existingDepartment.setEmployees(departmentDTORequest.getEmployees());
+        existingDepartment.setParcels(departmentDTORequest.getParcels());
+        existingDepartment.setRequests(departmentDTORequest.getRequests());
+
+        Department save = departmentRepository.save(existingDepartment);
+        return mapper.convertValue(save, DepartmentDTORequest.class);
     }
 
     @Override
     public void deleteDepartment(Long id) {
         Department department = departmentRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Department not found with id " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Отделение не найденно по текущему ID " + id));
         departmentRepository.delete(department);
     }
 

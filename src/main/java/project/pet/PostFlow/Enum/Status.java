@@ -4,5 +4,6 @@ public enum Status {
     NEW,
     IN_PROCESS,
     DELIVERED,
-    RETURNED
+    RETURNED,
+    DONE
 }
