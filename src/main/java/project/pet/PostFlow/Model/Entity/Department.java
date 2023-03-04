@@ -1,13 +1,17 @@
 package project.pet.PostFlow.Model.Entity;
 
+import java.util.List;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
-
-import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Setter
@@ -19,11 +23,11 @@ public class Department {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    private List<Employee> employees = new ArrayList<>();
+    @OneToMany
+    private List<Employee> employees;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    private List<Client> clients = new ArrayList<>();
+    @OneToMany
+    private List<Client> clients;
 
     @Column(name = "name")
     private String name;
@@ -31,10 +35,10 @@ public class Department {
     @Column(name = "address")
     private String address;
 
-    @OneToMany(mappedBy = "department")
+    @OneToMany
     private List<Parcel> parcels;
 
-    @OneToMany(mappedBy = "department")
+    @OneToMany
     private List<Request> requests;
 
 //    public List<Employee> getEmployees() {

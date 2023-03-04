@@ -1,5 +1,18 @@
 package project.pet.PostFlow.Model.Entity;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -7,11 +20,6 @@ import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 import project.pet.PostFlow.Enum.CRUDStatus;
 import project.pet.PostFlow.Enum.ClientPriority;
-
-import javax.persistence.*;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Setter
@@ -53,9 +61,9 @@ public class Client {
     private Department department;
 
     @OneToMany
-    List<Parcel> parcels = new ArrayList<>();
+    List<Parcel> parcels;
 
-    @OneToMany(mappedBy = "client") // каскадное нам впринципе не нужно так как клиента мы не удалим из базы?
-    private List<Request> requests = new ArrayList<>();
+    @OneToMany // каскадное нам впринципе не нужно так как клиента мы не удалим из базы?
+    private List<Request> requests;
 
 }

@@ -7,21 +7,22 @@ spring:
       name: user
       password: user
   jpa:
-    open-in-view: false
-    database: postgresql
-    show-sql: false
-    generate-ddl: true
-    hibernate:
-      ddl-auto: create
-    properties:
+      database: postgresql
+      show-sql: false
+      generate-ddl: true
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        jdbc:
-          lob:
-            non_contextual_creation: true
+          ddl-auto: update
+      properties:
+          hibernate:
+              hbm2dll:
+                  create_namespaces: true
+              dialect: org.hibernate.dialect.PostgreSQLDialect
+              jdbc:
+                  lob:
+                      non_contextual_creation: true
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/PostFlow
+    url: jdbc:postgresql://localhost:5432/post_flow
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver

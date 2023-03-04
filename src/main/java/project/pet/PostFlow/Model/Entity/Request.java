@@ -1,7 +1,9 @@
 package project.pet.PostFlow.Model.Entity;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import project.pet.PostFlow.Enum.RequestType;
@@ -12,6 +14,8 @@ import javax.persistence.*;
 @Setter
 @Entity
 @Table(name = "requests")
+@NoArgsConstructor
+@AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Request {
     @Id
@@ -30,17 +34,14 @@ public class Request {
 
     private String waitingTime;
 
-    private String EstimatedTime;
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "department_id", nullable = false)
+    private String estimatedTime;
+    @ManyToOne
     private Department department;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "parcel_id", nullable = false)
+    @ManyToOne
     private Parcel parcel;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "client_id", nullable = false)
+    @ManyToOne
     private Client client;
 
     public Request(Client client, RequestType requestType, String appointmentTime) {
