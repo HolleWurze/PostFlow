@@ -3,7 +3,6 @@ package project.pet.PostFlow.Services.ServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import project.pet.PostFlow.CustomException.AlreadyExistsException;
@@ -27,7 +26,6 @@ public class DepartmentServiceImpl implements DepartmentService {
     private final DepartmentRepository departmentRepository;
     private final EmployeeRepository employeeRepository;
     private final ParcelRepository parcelRepository;
-    private ModelMapper modelMapper;
     private final ObjectMapper mapper;
 
     @Override

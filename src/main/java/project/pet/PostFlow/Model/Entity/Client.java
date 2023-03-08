@@ -40,9 +40,6 @@ public class Client {
     @Column(name = "client_priority")
     private ClientPriority clientPriority;
 
-//    @Column(unique = true)
-//    String uniqueNumber; //нужен ли нам uniqueNumber если есть id
-
     @CreationTimestamp
     @Column(name = "created_date")
     LocalDateTime createdAt;

@@ -7,6 +7,8 @@ import project.pet.PostFlow.Model.Entity.Client;
 import project.pet.PostFlow.Model.Entity.Department;
 import project.pet.PostFlow.Model.Entity.Parcel;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 public class RequestDTORequest {
@@ -14,9 +16,10 @@ public class RequestDTORequest {
     Department department;
     Parcel parcel;
     Client client;
-    String appointmentDateTime;
+    String appointmentTime;
     String waitingTime;
     String estimatedTime;
     RequestType requestType;
+
 }
 

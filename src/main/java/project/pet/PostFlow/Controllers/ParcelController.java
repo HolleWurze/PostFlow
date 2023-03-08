@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import project.pet.PostFlow.Model.DTO.ClientDTORequest;
 import project.pet.PostFlow.Model.DTO.ParcelDTORequest;
 import project.pet.PostFlow.Model.Entity.Parcel;
 import project.pet.PostFlow.Services.Service.ParcelService;
@@ -22,13 +23,11 @@ public class ParcelController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Parcel> getParcelById(@PathVariable Long id) {
-        Parcel parcel = parcelService.getParcelById(id);
-        if (parcel != null) {
-            return ResponseEntity.ok(parcel);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<ParcelDTORequest> getParcelById(@PathVariable Long id) {
+        ParcelDTORequest parcelDTORequest = new ParcelDTORequest();
+        parcelDTORequest.setId(id);
+        ParcelDTORequest parcel = parcelService.getParcelById(id);
+        return ResponseEntity.ok().body(parcel);
     }
 
     @GetMapping

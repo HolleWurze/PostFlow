@@ -79,8 +79,8 @@ public class ClientServiceImpl implements ClientService {
         clientRepository.save(client);
     }
 
-    private Client getClient(Long clientDTOResponse) {
-        return clientRepository.findById(clientDTOResponse)
+    private Client getClient(Long id) {
+        return clientRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Клиент с таким ID не найден"));
     }
 }

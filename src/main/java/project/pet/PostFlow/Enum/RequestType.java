@@ -6,5 +6,6 @@ public enum RequestType {
     GET_PARCEL,
     SEND_PARCEL,
     CLOSE,
+    CANCELLED,
     DONE
 }

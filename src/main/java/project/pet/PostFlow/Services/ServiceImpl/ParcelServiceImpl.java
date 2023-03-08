@@ -6,7 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import project.pet.PostFlow.CustomException.AlreadyExistsException;
+import project.pet.PostFlow.Model.DTO.ClientDTORequest;
 import project.pet.PostFlow.Model.DTO.ParcelDTORequest;
+import project.pet.PostFlow.Model.Entity.Client;
 import project.pet.PostFlow.Model.Entity.Parcel;
 import project.pet.PostFlow.Model.Repository.ParcelRepository;
 import project.pet.PostFlow.Services.Service.ParcelService;
@@ -22,8 +24,10 @@ public class ParcelServiceImpl implements ParcelService {
     private final ObjectMapper mapper;
 
     @Override
-    public Parcel getParcelById(Long id) {
-        return parcelRepository.findById(id).orElse(null);
+    public ParcelDTORequest getParcelById(Long id) {
+        Parcel parcel = parcelRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Посылка не найдена с этим ID: " + id));
+        return mapper.convertValue(parcel, ParcelDTORequest.class);
     }
 
     @Override
@@ -47,15 +51,15 @@ public class ParcelServiceImpl implements ParcelService {
     public ParcelDTORequest updateParcel(Long id, ParcelDTORequest parcelDTORequest) {
         Parcel existingParcel = parcelRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Клиент с таким ID не найден " + parcelDTORequest.getId()));
-        if (existingParcel != null) {
+//        if (existingParcel != null) {
             existingParcel.setClient(parcelDTORequest.getClient());
             existingParcel.setDepartment(parcelDTORequest.getDepartment());
             existingParcel.setWeight(parcelDTORequest.getWeight());
             existingParcel.setStatus(parcelDTORequest.getStatus());
             return mapper.convertValue(parcelRepository.save(existingParcel), ParcelDTORequest.class);
-        } else {
-            return null;
-        }
+//        } else {
+//            return null;
+//        }
     }
 
     @Override

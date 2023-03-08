@@ -12,6 +12,7 @@ import project.pet.PostFlow.Model.Entity.Request;
 import project.pet.PostFlow.Services.Service.ClientService;
 import project.pet.PostFlow.Services.Service.RequestService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +23,7 @@ public class RequestController {
     private ClientService clientService;
 
     @PostMapping("")
-    public ResponseEntity<Request> createRequest(@RequestBody Map<String, String> requestParams) {
+    public ResponseEntity<RequestDTORequest> createRequest(@RequestBody Map<String, String> requestParams) {
         Long clientId = Long.parseLong(requestParams.get("clientId"));
         ClientDTORequest client = clientService.getClientById(clientId);
         if (client == null) {
@@ -33,13 +34,13 @@ public class RequestController {
         }
         RequestType requestType = RequestType.valueOf(requestParams.get("requestType"));
         String appointmentTime = requestParams.get("appointmentTime");
-        Request request = requestService.createRequest(client, requestType, appointmentTime);
+        RequestDTORequest request = requestService.createRequest(client, requestType, appointmentTime);
         return ResponseEntity.status(HttpStatus.CREATED).body(request);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Request> getRequestById(@PathVariable("id") Long id) throws ResourceNotFoundException {
-        Request request = requestService.getRequestById(id);
+    public ResponseEntity<RequestDTORequest> getRequestById(@PathVariable("id") Long id) throws ResourceNotFoundException {
+        RequestDTORequest request = requestService.getRequestById(id);
         if (request == null) {
             throw new ResourceNotFoundException("Request not found for this id :: " + id);
         }

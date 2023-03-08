@@ -2,6 +2,7 @@ package project.pet.PostFlow.Model.DTO;
 
 import lombok.Getter;
 import lombok.Setter;
+import project.pet.PostFlow.Model.Entity.Client;
 import project.pet.PostFlow.Model.Entity.Employee;
 import project.pet.PostFlow.Model.Entity.Parcel;
 import project.pet.PostFlow.Model.Entity.Request;
@@ -17,4 +18,5 @@ public class DepartmentDTORequest {
     List<Employee> employees;
     List<Parcel> parcels;
     List<Request> requests;
+    List<Client> clients;
 }

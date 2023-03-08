@@ -5,12 +5,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import project.pet.PostFlow.Enum.RequestType;
 import project.pet.PostFlow.Model.DTO.ClientDTORequest;
+import project.pet.PostFlow.Model.DTO.RequestDTORequest;
 import project.pet.PostFlow.Model.Entity.Client;
 import project.pet.PostFlow.Model.Entity.Request;
+import project.pet.PostFlow.Model.Repository.ClientRepository;
 import project.pet.PostFlow.Model.Repository.RequestRepository;
 import project.pet.PostFlow.Services.Service.ClientService;
 import project.pet.PostFlow.Services.Service.QueueService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -21,8 +24,10 @@ public class QueueController {
     private ClientService clientService;
     private RequestRepository requestRepository;
 
+    private ClientRepository clientRepository;
+
     @PostMapping("/add")
-    public ResponseEntity<Request> addRequest(@RequestBody Request request) {
+    public ResponseEntity<RequestDTORequest> addRequest(@RequestBody Request request) {
         ClientDTORequest client = clientService.getClientById(request.getClient().getId());
         if (client == null) {
             return ResponseEntity.notFound().build();
@@ -31,7 +36,7 @@ public class QueueController {
         RequestType requestType = request.getRequestType();
         String appointmentTime = request.getAppointmentTime();
 
-        Request newRequest = queueService.addRequest(client, requestType, appointmentTime);
+        RequestDTORequest newRequest = queueService.addRequest(client, requestType, appointmentTime);
 
         if (newRequest == null) {
             return ResponseEntity.ok(null);
@@ -41,8 +46,8 @@ public class QueueController {
     }
 
     @GetMapping("/current")
-    public ResponseEntity<Request> getCurrentRequest() {
-        Request currentRequest = queueService.getCurrentRequest();
+    public ResponseEntity<RequestDTORequest> getCurrentRequest() {
+        RequestDTORequest currentRequest = queueService.getCurrentRequest();
         if (currentRequest == null) {
             return ResponseEntity.notFound().build();
         }
@@ -79,8 +84,11 @@ public class QueueController {
     }
 
     @PostMapping("/recalculateEstimatedTime")
-    public void recalculateEstimatedTime() {
-        queueService.recalculateEstimatedTime();
+    public void recalculateEstimatedTime(@RequestParam Long clientId) {
+        Client client = clientRepository.findById(clientId).orElse(null);
+        if (client != null) {
+            queueService.recalculateEstimatedTime(client);
+        }
     }
 
     @PostMapping("/removeFromQueue")

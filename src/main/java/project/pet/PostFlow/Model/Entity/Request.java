@@ -9,6 +9,8 @@ import lombok.experimental.FieldDefaults;
 import project.pet.PostFlow.Enum.RequestType;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -21,16 +23,12 @@ public class Request {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @Enumerated(EnumType.STRING)
     RequestType requestType;
-
-//    @Enumerated(EnumType.STRING)
-//    Status status;
-
     private String appointmentTime;
 
-    private String appointmentDateTime;
+//    @NotNull
+//    private LocalDateTime appointmentDateTime;
 
     private String waitingTime;
 

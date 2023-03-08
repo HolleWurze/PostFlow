@@ -12,6 +12,8 @@ import project.pet.PostFlow.Model.Entity.Employee;
 import project.pet.PostFlow.Model.Repository.EmployeeRepository;
 import project.pet.PostFlow.Services.Service.EmployeeService;
 
+import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -19,19 +21,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EmployeeServiceImpl implements EmployeeService {
 
-    private EmployeeRepository employeeRepository;
+    private final EmployeeRepository employeeRepository;
     private final ObjectMapper mapper;
 
-    public List<Employee> getAllEmployees() {
-        return employeeRepository.findAll();
-    }
-
-    public Employee getEmployeeById(Long id) {
-        return employeeRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Employee", "id", id));
-    }
-
-    public EmployeeDTORequest createEmployee(EmployeeDTORequest employeeDTORequest) {
+    @Override
+    public EmployeeDTORequest createEmployee(@NotNull EmployeeDTORequest employeeDTORequest) {
         employeeRepository.findById(employeeDTORequest.getId()).ifPresent(
                 c -> {
                     throw new AlreadyExistsException("Сотрудник с таким ID уже существует ", HttpStatus.BAD_REQUEST);
@@ -43,6 +37,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         return mapper.convertValue(save, EmployeeDTORequest.class);
     }
 
+    @Override
     public EmployeeDTORequest updateEmployee(Long id, EmployeeDTORequest employeeDTORequest) {
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee", "id", id));
@@ -55,9 +50,21 @@ public class EmployeeServiceImpl implements EmployeeService {
         return mapper.convertValue(save, EmployeeDTORequest.class);
     }
 
+    @Override
     public void deleteEmployee(Long id) {
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee", "id", id));
         employeeRepository.delete(employee);
+    }
+
+    @Override
+    public Employee getEmployeeById(Long id) {
+        return employeeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Employee", "id", id));
+    }
+
+    @Override
+    public List<Employee> getAllEmployees() {
+        return employeeRepository.findAll();
     }
 }

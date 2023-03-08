@@ -14,5 +14,7 @@ public class ParcelDTORequest {
     Department department;
     Double weight;
     Status status;
+    String trackingNumber;
+    String description;
 }
 

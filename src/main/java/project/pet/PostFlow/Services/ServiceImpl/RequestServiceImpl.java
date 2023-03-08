@@ -3,7 +3,8 @@ package project.pet.PostFlow.Services.ServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import project.pet.PostFlow.Enum.ClientPriority;
 import project.pet.PostFlow.Enum.RequestType;
@@ -11,13 +12,11 @@ import project.pet.PostFlow.Model.DTO.ClientDTORequest;
 import project.pet.PostFlow.Model.DTO.RequestDTORequest;
 import project.pet.PostFlow.Model.Entity.Client;
 import project.pet.PostFlow.Model.Entity.Request;
+import project.pet.PostFlow.Model.Repository.ClientRepository;
 import project.pet.PostFlow.Model.Repository.RequestRepository;
-import project.pet.PostFlow.Services.Service.ClientService;
 import project.pet.PostFlow.Services.Service.RequestService;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,18 +25,22 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class RequestServiceImpl implements RequestService {
     private final RequestRepository requestRepository;
-    private final ClientService clientService;
-    private ModelMapper modelMapper;
+
+    private final ClientRepository clientRepository;
+//    private ModelMapper modelMapper;
 
     private final ObjectMapper mapper;
 
 
     @Override
-    public Request createRequest(ClientDTORequest clientDTORequest, RequestType requestType, String appointmentTime) {
-        Client client = modelMapper.map(clientDTORequest, Client.class);
-        String appointmentDateTime = String.valueOf(LocalDateTime.parse(appointmentTime, DateTimeFormatter.ISO_DATE_TIME));
-
-        Request request = new Request(client, requestType, String.valueOf(appointmentDateTime));
+    public RequestDTORequest createRequest(ClientDTORequest clientDTORequest, RequestType requestType, String appointmentTime) {
+        Client client = new Client();
+        client.setId(clientDTORequest.getId());
+        client.setFirstName(clientDTORequest.getFirstName());
+        client.setLastName(clientDTORequest.getLastName());
+        client.setClientPriority(clientDTORequest.getClientPriority());
+        Client savedClient = clientRepository.save(client);
+        Request request = new Request(savedClient, requestType, appointmentTime);
         if (clientDTORequest.getClientPriority() == ClientPriority.PRIORITY) {
             request.setWaitingTime(String.valueOf(Duration.ZERO));
         } else {
@@ -45,14 +48,18 @@ public class RequestServiceImpl implements RequestService {
             request.setEstimatedTime(estimatedTime);
             request.setWaitingTime(getTotalWaitingTime(request.getClient()));
         }
-        return requestRepository.save(request);
+
+        return mapper.convertValue(requestRepository.save(request), RequestDTORequest.class);
     }
 
     private String getTotalWaitingTime(Client client) {
         Duration totalWaitingTime = Duration.ZERO;
-        for (Request request : client.getRequests()) {
-            if (request.getAppointmentDateTime() == null) {
-                totalWaitingTime = totalWaitingTime.plus(Duration.parse(request.getEstimatedTime()));
+        List<Request> requests = client.getRequests();
+        if (requests != null) {
+            for (Request request : requests) {
+                if (request.getAppointmentTime() == null) {
+                    totalWaitingTime = totalWaitingTime.plus(Duration.parse(request.getEstimatedTime()));
+                }
             }
         }
         return totalWaitingTime.toString();
@@ -73,8 +80,8 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public Request getRequestById(Long id) {
-        return requestRepository.findById(id).orElse(null);
+    public RequestDTORequest getRequestById(Long id) {
+        return mapper.convertValue(requestRepository.findById(id).orElse(null),RequestDTORequest.class);
     }
 
     @Override
@@ -90,7 +97,6 @@ public class RequestServiceImpl implements RequestService {
         if (existingRequest != null) {
             existingRequest.setDepartment(requestDTORequest.getDepartment());
             existingRequest.setParcel(requestDTORequest.getParcel());
-            existingRequest.setAppointmentDateTime(requestDTORequest.getAppointmentDateTime());
             existingRequest.setWaitingTime(requestDTORequest.getWaitingTime());
             existingRequest.setEstimatedTime(requestDTORequest.getEstimatedTime());
             existingRequest.setRequestType(requestDTORequest.getRequestType());

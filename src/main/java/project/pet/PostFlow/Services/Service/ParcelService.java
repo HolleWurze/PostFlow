@@ -6,7 +6,7 @@ import project.pet.PostFlow.Model.Entity.Parcel;
 import java.util.List;
 
 public interface ParcelService {
-    Parcel getParcelById(Long id);
+    ParcelDTORequest getParcelById(Long id);
     List<Parcel> getAllParcels();
     ParcelDTORequest createParcel(ParcelDTORequest parcelDTORequest);
     ParcelDTORequest updateParcel(Long id, ParcelDTORequest parcelDTORequest);
