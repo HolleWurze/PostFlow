@@ -36,11 +36,16 @@ public class QueueServiceImpl implements QueueService {
     public Queue getOrCreateQueue() {
         Optional<Queue> optionalQueue = queueRepository.findTopByOrderByIdDesc();
         if (optionalQueue.isPresent()) {
-            return optionalQueue.get();
+            Queue queue = optionalQueue.get();
+            if (queue.getRequests() == null) {
+                queue.setRequests(new ArrayList<>());
+            }
+            return queue;
         }
         Queue newQueue = new Queue();
         newQueue.setNextQueueNumber(1);
         newQueue.setPriorityClient(false);
+        newQueue.setRequests(new ArrayList<>()); // Создаем пустой список, если очередь еще не была создана
         return queueRepository.save(newQueue);
     }
 
@@ -76,11 +81,14 @@ public class QueueServiceImpl implements QueueService {
                 requests.add(request);
             } else {
                 requests.add(request);
-                queue.setNextQueueNumber(queue.getNextQueueNumber() + 1);
+                if (queue.getNextQueueNumber() == null) {
+                    queue.setNextQueueNumber(1);
+                } else {
+                    queue.setNextQueueNumber(queue.getNextQueueNumber() + 1);
+                }
             }
             queue.setRequests(requests);
         }
-
         queueRepository.save(queue);
         return mapper.convertValue(request, RequestDTO.class);
     }
@@ -88,6 +96,9 @@ public class QueueServiceImpl implements QueueService {
     @Override
     public RequestDTO getCurrentRequest() {
         Queue queue = getOrCreateQueue();
+        if (queue == null || queue.getRequests() == null || queue.getRequests().isEmpty()) {
+            return null; // no requests in the queue
+        }
         Request currentRequest = queue.getCurrentRequest();
         if (currentRequest == null && !queue.getRequests().isEmpty()) {
             currentRequest = queue.getRequests().get(0);
@@ -133,13 +144,15 @@ public class QueueServiceImpl implements QueueService {
     @Override
     public void recalculateEstimatedTime(Client client) {
         Queue queue = getOrCreateQueue();
-        List<Request> requests = queue.getRequests().stream()
+        List<Request> requests = queue.getRequests()
+                .stream()
                 .filter(request -> request.getClient().equals(client))
                 .collect(Collectors.toList());
         int queueSize = requests.size();
         long waitingTimeInSeconds = queueSize * averageWaitingTimeInMinutes;
         for (Request request : requests) {
-            request.setEstimatedTime(String.valueOf(Duration.ofSeconds(waitingTimeInSeconds)));
+            request.setEstimatedTime(
+                    String.valueOf(Duration.ofSeconds(waitingTimeInSeconds)));
             waitingTimeInSeconds -= averageWaitingTimeInMinutes;
         }
         queueRepository.save(queue);
@@ -148,17 +161,21 @@ public class QueueServiceImpl implements QueueService {
     @Override
     public void removeFromQueue(Client client) {
         Queue queue = getOrCreateQueue();
+        if (queue.getRequests() == null || queue.getRequests().isEmpty()) {
+            return; // no requests in the queue
+        }
         List<Request> requestsToRemove = queue.getRequests()
                 .stream()
                 .filter(request -> request.getClient().equals(client))
                 .collect(Collectors.toList());
-        if (requestsToRemove.size() > 0) {
-            queue.getRequests().removeAll(requestsToRemove);
-            if (queue.getCurrentRequest() != null && queue.getCurrentRequest().getClient().equals(client)) {
-                queue.setCurrentRequest(null);
-            }
-            queueRepository.save(queue);
+        if (requestsToRemove.isEmpty()) {
+            return; // no requests found for this client
         }
+        queue.getRequests().removeAll(requestsToRemove);
+        if (queue.getCurrentRequest() != null && queue.getCurrentRequest().getClient().equals(client)) {
+            queue.setCurrentRequest(null);
+        }
+        queueRepository.save(queue);
     }
 
     @Override

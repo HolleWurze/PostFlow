@@ -27,9 +27,6 @@ public class Request {
     RequestType requestType;
     private String appointmentTime;
 
-//    @NotNull
-//    private LocalDateTime appointmentDateTime;
-
     private String waitingTime;
 
     private String estimatedTime;

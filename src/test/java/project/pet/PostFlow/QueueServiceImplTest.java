@@ -1,7 +1,6 @@
 package project.pet.PostFlow;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.*;
@@ -14,13 +13,11 @@ import project.pet.PostFlow.Model.DTO.RequestDTO;
 import project.pet.PostFlow.Model.Entity.Client;
 import project.pet.PostFlow.Model.Entity.Queue;
 import project.pet.PostFlow.Model.Entity.Request;
-import project.pet.PostFlow.Model.Repository.ClientRepository;
 import project.pet.PostFlow.Model.Repository.QueueRepository;
-import project.pet.PostFlow.Model.Repository.RequestRepository;
-import project.pet.PostFlow.Services.Service.ClientService;
 import project.pet.PostFlow.Services.Service.RequestService;
 import project.pet.PostFlow.Services.ServiceImpl.QueueServiceImpl;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -36,6 +33,8 @@ public class QueueServiceImplTest {
     @Mock
     private RequestService requestService;
 
+    private final int averageWaitingTimeInMinutes = 10;
+
     @Spy
     private ModelMapper modelMapper;
     @Spy
@@ -46,7 +45,6 @@ public class QueueServiceImplTest {
 
     @Test
     public void testAddRequest() {
-        // Создаем тестовые данные
         ClientDTO clientDTO = new ClientDTO();
         clientDTO.setId(1L);
         clientDTO.setFirstName("John");
@@ -55,119 +53,173 @@ public class QueueServiceImplTest {
         RequestType requestType = RequestType.IN_PROGRESS;
         String appointmentTime = LocalDateTime.now().toString();
 
-        // Настройка объекта-заглушки для возврата не-`null` значения
         Queue queue = new Queue();
-        queue.setId(1L);
+        queue.setRequests(new ArrayList<>());
+
         when(queueRepository.findTopByOrderByIdDesc()).thenReturn(Optional.of(queue));
+        when(queueRepository.save(any(Queue.class))).thenReturn(queue);
 
-        // Вызов метода, который будет тестироваться
         RequestDTO result = queueServiceImpl.addRequest(clientDTO, requestType, appointmentTime);
-        result.setId(1L);
-        // Проверка результата
-        assertNotNull(result);
 
-        // Проверка того, что объект-заглушка был вызван
+        assertNotNull(result);
         verify(queueRepository, times(1)).findTopByOrderByIdDesc();
         verify(queueRepository, times(1)).save(any(Queue.class));
     }
 
     @Test
-    public void testGetOrCreateQueue() {
-        // arrange
-        Queue expectedQueue = new Queue();
-        expectedQueue.setId(1L);
-        expectedQueue.setNextQueueNumber(1);
-        expectedQueue.setPriorityClient(false);
+    public void testGetOrCreateQueue_notEmpty() {
+        Request request = new Request();
+        request.setWaitingTime("10");
+        Queue newQueue = new Queue();
+        newQueue.setRequests(Collections.singletonList(request));
 
-        when(queueRepository.findAll()).thenReturn(Collections.singletonList(expectedQueue));
-        when(queueRepository.save(any(Queue.class))).thenReturn(expectedQueue);
+        when(queueRepository.findAll()).thenReturn(Collections.singletonList(newQueue));
+        when(queueRepository.save(any(Queue.class))).thenReturn(newQueue);
 
-        // act
-        Queue actualQueue = queueServiceImpl.getOrCreateQueue();
-
-        // assert
-        assertNotNull(actualQueue);
-        assertEquals(expectedQueue, actualQueue);
-        verify(queueRepository, times(1)).findAll();
-        verify(queueRepository, times(1)).save(any(Queue.class));
+        Queue result = queueServiceImpl.getOrCreateQueue();
+        assertEquals(request.getWaitingTime(), result.getRequests().get(0).getWaitingTime());
     }
 
     @Test
-    public void testAddRegularRequest() {
-        // Создаем клиента с обычным статусом
-        ClientDTO clientDTO = new ClientDTO();
-        clientDTO.setFirstName("Вася");
-        clientDTO.setLastName("Пупкин");
-        clientDTO.setClientPriority(ClientPriority.REGULAR);
+    public void testGetOrCreateQueue_emptyRepo() {
+        Request request = new Request();
+        request.setWaitingTime("10");
+        Queue newQueue = new Queue();
+        newQueue.setRequests(Collections.singletonList(request));
 
-        // Создаем mock для getOrCreateQueue()
+        when(queueRepository.save(any(Queue.class))).thenReturn(newQueue);
+
+        Queue result = queueServiceImpl.getOrCreateQueue();
+        assertEquals(request.getWaitingTime(),result.getRequests().get(0).getWaitingTime());
+    }
+
+    @Test
+    public void testGetCurrentRequest_currentRequestNotNull() {
         Queue queue = new Queue();
+        Request currentRequest = new Request();
+        currentRequest.setId(1L);
+        currentRequest.setClient(new Client());
+        List<Request> requests = new ArrayList<>();
+        requests.add(currentRequest);
+        queue.setRequests(requests);
+        queue.setCurrentRequest(currentRequest);
+
+        when(queueRepository.findTopByOrderByIdDesc()).thenReturn(Optional.of(queue));
+
+        RequestDTO result = queueServiceImpl.getCurrentRequest();
+
+        assertNotNull(result);
+        assertEquals(currentRequest.getId(), result.getId());
+        verify(queueRepository, times(1)).findTopByOrderByIdDesc();
+    }
+
+
+    @Test
+    public void testGetCurrentRequest_currentRequestIsNull() {
+        Queue queue = new Queue();
+        queue.setId(1L);
+
+        when(queueRepository.findTopByOrderByIdDesc()).thenReturn(Optional.of(queue));
+
+        RequestDTO result = queueServiceImpl.getCurrentRequest();
+
+        assertNull(result);
+        verify(queueRepository, times(1)).findTopByOrderByIdDesc();
+        verify(queueRepository, never()).save(any(Queue.class));
+    }
+
+    @Test
+    public void testMarkCurrentRequestDone() {
+        Queue queue = new Queue();
+        Request currentRequest = new Request();
+        currentRequest.setRequestType(RequestType.GET_PARCEL);
+        LocalDateTime appointmentTime = LocalDateTime.now();
+        currentRequest.setAppointmentTime(appointmentTime.toString());
+        currentRequest.setWaitingTime("0");
+        queue.setCurrentRequest(currentRequest);
+
         when(queueRepository.findTopByOrderByIdDesc()).thenReturn(Optional.of(queue));
         when(queueRepository.save(any(Queue.class))).thenReturn(queue);
 
-        // Создаем mock для возвращаемого значения от requestService.createRequest
-        RequestDTO requestDTO = new RequestDTO();
-        requestDTO.setRequestType(RequestType.NEW);
-        requestDTO.setAppointmentTime(LocalDateTime.now().toString());
-        when(requestService.createRequest(clientDTO, RequestType.NEW, LocalDateTime.now().toString())).thenReturn(requestDTO);
+        queueServiceImpl.markCurrentRequestDone();
 
-        // Выполняем метод addRequest()
-        RequestDTO result = queueServiceImpl.addRequest(clientDTO, RequestType.NEW, LocalDateTime.now().toString());
-
-        // Проверяем, что возвращается правильный объект RequestDTO
-        assertNotNull(result);
-        assertEquals(requestDTO, result);
-
-        // Проверяем, что очередь сохраняется
+        verify(queueRepository, times(1)).findTopByOrderByIdDesc();
         verify(queueRepository, times(1)).save(any(Queue.class));
-    }
 
-//    @Test
-//    public void testGetClientQueue() {
-//        // Создаем клиентов и запросы
-//        Client client1 = new Client();
-//        Request request1 = new Request(client1, RequestType.GET_PARCEL, LocalDateTime.now().toString());
-//
-//        Client client2 = new Client();
-//        Request request2 = new Request(client2, RequestType.GET_PARCEL, LocalDateTime.now().toString());
-//
-//        Client client3 = new Client();
-//        Request request3 = new Request(client3, RequestType.SEND_PARCEL, LocalDateTime.now().toString());
-//
-//        // Добавляем запросы в очередь
-//        QueueServiceImpl queueService = new QueueServiceImpl(queueRepository, new ModelMapper(), new ObjectMapper());
-//        queueService.addRequest(modelMapper.map(client1, ClientDTO.class), RequestType.GET_PARCEL, LocalDateTime.now().toString());
-//        queueService.addRequest(modelMapper.map(client2, ClientDTO.class), RequestType.GET_PARCEL, LocalDateTime.now().toString());
-//        queueService.addRequest(modelMapper.map(client3, ClientDTO.class), RequestType.SEND_PARCEL, LocalDateTime.now().toString());
-//
-//        // Получаем список клиентов в очереди
-//        List<Client> clientQueue = queueService.getClientQueue();
-//
-//        // Проверяем, что список содержит всех добавленных клиентов
-//        assertEquals(3, clientQueue.size());
-//        assertTrue(clientQueue.contains(client1));
-//        assertTrue(clientQueue.contains(client2));
-//        assertTrue(clientQueue.contains(client3));
-//    }
+        assertNull(queue.getCurrentRequest());
+        assertEquals(RequestType.DONE, currentRequest.getRequestType());
+        assertEquals(Duration.ofMinutes(0), Duration.between(appointmentTime, LocalDateTime.parse(currentRequest.getAppointmentTime())));
+    }
 
     @Test
     public void testRemoveFromQueue() {
-        // Создаем клиента и добавляем в очередь
-        ClientDTO clientDTO = new ClientDTO();
-        clientDTO.setFirstName("Вася");
-        clientDTO.setLastName("Пупкин");
-        RequestDTO request = queueServiceImpl.addRequest(clientDTO, RequestType.GET_PARCEL, LocalDateTime.now().toString());
+        Client client = new Client();
+        Queue queue = new Queue();
+        List<Request> requests = new ArrayList<>();
+        Request request1 = new Request(new Client(), RequestType.GET_PARCEL, "2022-04-01T16:00:00");
+        Request request2 = new Request(client, RequestType.GET_PARCEL, "2022-04-01T16:10:00");
+        Request request3 = new Request(new Client(), RequestType.SEND_PARCEL, "2022-04-01T16:20:00");
+        requests.add(request1);
+        requests.add(request2);
+        requests.add(request3);
+        queue.setRequests(requests);
 
-        // Вызываем метод removeFromQueue()
-        queueServiceImpl.removeFromQueue(modelMapper.map(clientDTO, Client.class));
+        when(queueRepository.findTopByOrderByIdDesc()).thenReturn(Optional.of(queue));
+        when(queueRepository.save(any(Queue.class))).thenReturn(queue);
 
-        // Проверяем, что клиент удален из очереди и очередь сохраняется
-        verify(queueRepository, times(1)).save(any(Queue.class));
-        assertEquals(Collections.emptyList(), queueServiceImpl.getRequests());
+        queueServiceImpl.removeFromQueue(client);
+
+        verify(queueRepository, times(1)).save(queue);
+        assertEquals(2, queue.getRequests().size());
+        assertFalse(queue.getRequests().contains(request2));
+        assertNull(queue.getCurrentRequest());
     }
 
+    @Test
+    public void testRecalculateEstimatedTime_emptyQueue() {
+        Queue emptyQueue = new Queue();
+        when(queueRepository.findTopByOrderByIdDesc()).thenReturn(Optional.of(emptyQueue));
 
+        queueServiceImpl.recalculateEstimatedTime(new Client());
 
+        verify(queueRepository, times(1)).findTopByOrderByIdDesc();
+        verify(queueRepository, times(1)).save(emptyQueue);
+    }
 
+    @Test
+    public void testRecalculateEstimatedTime_multipleRequestsForSameClient() {
+        Client client = new Client();
+        Request request1 = new Request(client, RequestType.GET_PARCEL, null);
+        Request request2 = new Request(client, RequestType.GET_PARCEL, null);
+        List<Request> requests = Arrays.asList(request1, request2);
+        Queue queue = new Queue();
+        queue.setRequests(requests);
+        when(queueRepository.findTopByOrderByIdDesc()).thenReturn(Optional.of(queue));
 
+        queueServiceImpl.recalculateEstimatedTime(client);
+
+        verify(queueRepository, times(1)).findTopByOrderByIdDesc();
+        verify(queueRepository, times(1)).save(queue);
+        assertEquals(Duration.ZERO, Duration.parse(request1.getEstimatedTime()));
+        assertEquals(String.valueOf(Duration.ofMinutes(-averageWaitingTimeInMinutes)), request2.getEstimatedTime(), "Incorrect estimated time");
+    }
+
+    @Test
+    public void testRecalculateEstimatedTime_multipleRequestsForDifferentClients() {
+        Client client1 = new Client();
+        Client client2 = new Client();
+        Request request1 = new Request(client1, RequestType.GET_PARCEL, null);
+        Request request2 = new Request(client2, RequestType.GET_PARCEL, null);
+        List<Request> requests = Arrays.asList(request1, request2);
+        Queue queue = new Queue();
+        queue.setRequests(requests);
+        when(queueRepository.findTopByOrderByIdDesc()).thenReturn(Optional.of(queue));
+
+        queueServiceImpl.recalculateEstimatedTime(client1);
+
+        verify(queueRepository, times(1)).findTopByOrderByIdDesc();
+        verify(queueRepository, times(1)).save(queue);
+        assertEquals(Duration.ZERO, Duration.parse(request1.getEstimatedTime()));
+        assertNull(request2.getEstimatedTime());
+    }
 }

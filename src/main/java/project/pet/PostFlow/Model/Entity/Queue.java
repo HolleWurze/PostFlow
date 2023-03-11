@@ -13,6 +13,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 
 @Entity
 @Getter
@@ -27,7 +28,7 @@ public class Queue {
 
     private Boolean priorityClient;
 
-    private Integer nextQueueNumber = 0;
+    private Integer nextQueueNumber;
 
     @OneToOne(cascade = CascadeType.ALL)
     private Request currentRequest;

@@ -12,9 +12,6 @@ public interface QueueService {
 
     int AVERAGE_WAITING_TIME_IN_MINUTES = 5;
 
-//    default int getAverageWaitingTimeInMinutes() {
-//        return AVERAGE_WAITING_TIME_IN_MINUTES;
-//    }
     RequestDTO addRequest(ClientDTO clientDTO, RequestType requestType, String appointmentTime); //добавляю заявку в очередь на обслуживание и возвращаю добавленную заявку
     RequestDTO getCurrentRequest(); //возвращаю текущую заявку из очереди на обслуживание
     void markCurrentRequestDone(); //помечаю текущую заявку как выполненную

@@ -1,6 +1,8 @@
 package project.pet.PostFlow;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.checkerframework.checker.units.qual.C;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -77,7 +79,7 @@ public class ParcelServiceImplTest {
         ParcelDTO parcelDTO = createTestParcelDTO();
 
         when(parcelRepository.existsById(anyLong())).thenReturn(false);
-        when(parcelRepository.save(any())).thenReturn(new Parcel());
+        when(parcelRepository.save(any())).thenReturn(new Parcel()); // return a non-null Parcel instance
 
         ParcelDTO result = parcelService.createParcel(parcelDTO);
 
