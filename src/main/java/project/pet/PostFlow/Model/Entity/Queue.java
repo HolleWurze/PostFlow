@@ -27,7 +27,7 @@ public class Queue {
 
     private Boolean priorityClient;
 
-    private Integer nextQueueNumber;
+    private Integer nextQueueNumber = 0;
 
     @OneToOne(cascade = CascadeType.ALL)
     private Request currentRequest;

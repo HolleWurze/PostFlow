@@ -25,13 +25,24 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class QueueServiceImpl implements QueueService {
 
-    private final Map<Client, Request> queue = new LinkedHashMap<>();
+    private final Map<Client, Request> queueMap;
     private final QueueRepository queueRepository;
     private final int averageWaitingTimeInMinutes = 10;
 
     private final ModelMapper modelMapper;
 
     private final ObjectMapper mapper;
+
+    public Queue getOrCreateQueue() {
+        Optional<Queue> optionalQueue = queueRepository.findTopByOrderByIdDesc();
+        if (optionalQueue.isPresent()) {
+            return optionalQueue.get();
+        }
+        Queue newQueue = new Queue();
+        newQueue.setNextQueueNumber(1);
+        newQueue.setPriorityClient(false);
+        return queueRepository.save(newQueue);
+    }
 
     @Override
     public RequestDTO addRequest(ClientDTO clientDTO, RequestType requestType, String appointmentTime) {
@@ -40,13 +51,17 @@ public class QueueServiceImpl implements QueueService {
         Request request = new Request(client, requestType, appointmentTime);
 
         if (clientDTO.getClientPriority() == ClientPriority.PRIORITY) {
-            // Если у клиента приоритетный статус то мы его сразу обслуживаем
+            // Если у клиента приоритетный статус, то мы его сразу обслуживаем
             request.setRequestType(RequestType.DONE);
             request.setAppointmentTime(LocalDateTime.now().toString());
             request.setWaitingTime(String.valueOf(Duration.ZERO));
             queue.setCurrentRequest(request);
         } else {
-            List<Request> requests = queue.getRequests().stream()
+            List<Request> requests = queue.getRequests();
+            if (requests == null) {
+                requests = new ArrayList<>();
+            }
+            requests = requests.stream()
                     .filter(r -> r.getClient().equals(client))
                     .collect(Collectors.toList());
 
@@ -58,11 +73,12 @@ public class QueueServiceImpl implements QueueService {
                         .map(appointment -> Duration.between(LocalDateTime.parse(appointment), LocalDateTime.now()).getSeconds())
                         .orElse(0L);
                 request.setEstimatedTime(String.valueOf(Duration.ofSeconds(waitingTimeInSeconds)));
-                queue.getRequests().add(request);
+                requests.add(request);
             } else {
-                queue.getRequests().add(request);
+                requests.add(request);
                 queue.setNextQueueNumber(queue.getNextQueueNumber() + 1);
             }
+            queue.setRequests(requests);
         }
 
         queueRepository.save(queue);
@@ -79,7 +95,6 @@ public class QueueServiceImpl implements QueueService {
             queue.getRequests().remove(0);
             queueRepository.save(queue);
         }
-
         return mapper.convertValue(currentRequest, RequestDTO.class);
     }
 
@@ -101,7 +116,7 @@ public class QueueServiceImpl implements QueueService {
 
     @Override
     public List<Request> getRequests() {
-        return new ArrayList<>(queue.values());
+        return new ArrayList<>(queueMap.values());
     }
 
     @Override
@@ -148,19 +163,6 @@ public class QueueServiceImpl implements QueueService {
 
     @Override
     public List<Client> getClientQueue() {
-        return new ArrayList<>(queue.keySet());
-    }
-
-    public Queue getOrCreateQueue() {
-        if (queueRepository != null) {
-            List<Queue> queues = queueRepository.findAll();
-            if (!queues.isEmpty()) {
-                return queues.get(queues.size() - 1);
-            }
-        }
-        Queue newQueue = new Queue();
-        newQueue.setNextQueueNumber(1);
-        newQueue.setPriorityClient(false);
-        return queueRepository.save(newQueue);
+        return new ArrayList<>(queueMap.keySet());
     }
 }

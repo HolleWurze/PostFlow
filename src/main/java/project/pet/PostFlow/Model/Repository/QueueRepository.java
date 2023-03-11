@@ -9,7 +9,5 @@ import java.util.Optional;
 @Repository
 public interface QueueRepository extends JpaRepository<Queue, Long>{
     Optional<Queue> findTopByOrderByIdDesc();
-
     Optional<Queue> findById(Long queueId);
-
 }
