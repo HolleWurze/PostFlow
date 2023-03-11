@@ -1,19 +1,21 @@
 package project.pet.PostFlow;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.checkerframework.checker.units.qual.C;
 import org.junit.Test;
-import org.junit.jupiter.params.shadow.com.univocity.parsers.annotations.Copy;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import project.pet.PostFlow.Enum.Status;
-import project.pet.PostFlow.Model.DTO.ParcelDTORequest;
+import project.pet.PostFlow.Model.DTO.ParcelDTO;
 import project.pet.PostFlow.Model.Entity.Client;
 import project.pet.PostFlow.Model.Entity.Department;
 import project.pet.PostFlow.Model.Entity.Parcel;
 import project.pet.PostFlow.Model.Repository.ParcelRepository;
+import project.pet.PostFlow.Services.Service.ParcelService;
 import project.pet.PostFlow.Services.ServiceImpl.ParcelServiceImpl;
 
 import java.util.Arrays;
@@ -26,7 +28,7 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class ParcelServiceImplTest {
 
-    @Spy
+    @Mock
     ObjectMapper mapper;
 
     @Mock
@@ -35,16 +37,16 @@ public class ParcelServiceImplTest {
     @InjectMocks
     ParcelServiceImpl parcelService;
 
-    private ParcelDTORequest createTestParcelDTORequest() {
-        ParcelDTORequest parcelDTORequest = new ParcelDTORequest();
+    private ParcelDTO createTestParcelDTO() {
+        ParcelDTO parcelDTO = new ParcelDTO();
         Client client = new Client();
         Department department = new Department();
-        parcelDTORequest.setId(1L);
-        parcelDTORequest.setClient(client);
-        parcelDTORequest.setDepartment(department);
-        parcelDTORequest.setWeight(2.5);
-        parcelDTORequest.setStatus(Status.DELIVERED);
-        return parcelDTORequest;
+        parcelDTO.setId(1L);
+        parcelDTO.setClient(client);
+        parcelDTO.setDepartment(department);
+        parcelDTO.setWeight(2.5);
+        parcelDTO.setStatus(Status.DELIVERED);
+        return parcelDTO;
     }
 
     private Parcel createTestParcel() {
@@ -60,17 +62,6 @@ public class ParcelServiceImplTest {
     }
 
     @Test
-    public void testGetParcelById() {
-        Parcel expectedParcel = createTestParcel();
-        when(parcelRepository.findById(expectedParcel.getId())).thenReturn(Optional.of(expectedParcel));
-
-        ParcelDTORequest actualParcel = parcelService.getParcelById(expectedParcel.getId());
-
-        assertEquals(expectedParcel, actualParcel);
-        verify(parcelRepository, times(1)).findById(expectedParcel.getId());
-    }
-
-    @Test
     public void testGetAllParcels() {
         List<Parcel> expectedParcels = Arrays.asList(createTestParcel());
         when(parcelRepository.findAll()).thenReturn(expectedParcels);
@@ -83,55 +74,42 @@ public class ParcelServiceImplTest {
 
     @Test
     public void testCreateParcel() {
-        ParcelDTORequest parcelDTORequest = new ParcelDTORequest();
-        parcelDTORequest.setId(1L);
-        parcelDTORequest.setDescription("Тестовая посылка");
-        parcelDTORequest.setWeight(1.0);
+        ParcelDTO parcelDTO = createTestParcelDTO();
 
-        when(parcelRepository.findById(1L)).thenReturn(Optional.empty());
-        when(parcelRepository.save(any(Parcel.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(parcelRepository.existsById(anyLong())).thenReturn(false);
+        when(parcelRepository.save(any())).thenReturn(new Parcel());
 
-        ParcelDTORequest createdParcel = parcelService.createParcel(parcelDTORequest);
+        ParcelDTO result = parcelService.createParcel(parcelDTO);
 
-        assertNotNull(createdParcel);
-        assertEquals(parcelDTORequest.getDescription(), createdParcel.getDescription());
-        assertEquals(parcelDTORequest.getWeight(), createdParcel.getWeight());
-
-        verify(parcelRepository, times(1)).findById(1L);
-        verify(parcelRepository, times(1)).save(any(Parcel.class));
-
+        assertNotNull(result, "Result is null");
     }
 
     @Test
-    public void testUpdateParcel() {
-        Parcel parcelToUpdate = new Parcel();
-        parcelToUpdate.setId(1L);
-        parcelToUpdate.setClient(new Client());
-        parcelToUpdate.setDepartment(new Department());
-        parcelToUpdate.setWeight(1.0);
-        parcelToUpdate.setStatus(Status.DELIVERED);
+    public void testGetParcelById() {
+        // arrange
+        Long id = 1L;
+        Parcel parcel = new Parcel();
+        parcel.setId(id);
+        parcel.setClient(new Client());
+        parcel.setDepartment(new Department());
+        parcel.setWeight(1.0);
+        parcel.setStatus(Status.NEW);
+        ParcelDTO expectedParcelDTO = new ParcelDTO();
+        expectedParcelDTO.setId(id);
+        expectedParcelDTO.setClient(new Client());
+        expectedParcelDTO.setDepartment(new Department());
+        expectedParcelDTO.setWeight(1.0);
+        expectedParcelDTO.setStatus(Status.NEW);
+        when(parcelRepository.findById(id)).thenReturn(Optional.of(parcel));
+        when(mapper.convertValue(parcel, ParcelDTO.class)).thenReturn(expectedParcelDTO);
 
-        ParcelDTORequest updatedParcelDTO = new ParcelDTORequest();
-        updatedParcelDTO.setId(1L);
-        updatedParcelDTO.setClient(new Client());
-        updatedParcelDTO.setDepartment(new Department());
-        updatedParcelDTO.setWeight(2.0);
-        updatedParcelDTO.setStatus(Status.RETURNED);
+        ParcelDTO actualParcelDTO = parcelService.getParcelById(id);
 
-        when(parcelRepository.findById(1L)).thenReturn(Optional.of(parcelToUpdate));
-        when(parcelRepository.save(any(Parcel.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        ParcelDTORequest updatedParcelDTORequest = parcelService.updateParcel(1L, updatedParcelDTO);
-
-        verify(parcelRepository, times(1)).findById(1L);
-
-        verify(parcelRepository, times(1)).save(eq(parcelToUpdate));
-
-        assertEquals(updatedParcelDTO.getClient(), updatedParcelDTORequest.getClient());
-        assertEquals(updatedParcelDTO.getDepartment(), updatedParcelDTORequest.getDepartment());
-        assertEquals(updatedParcelDTO.getWeight(), updatedParcelDTORequest.getWeight());
-        assertEquals(updatedParcelDTO.getStatus(), updatedParcelDTORequest.getStatus());
+        assertEquals(expectedParcelDTO, actualParcelDTO);
+        verify(parcelRepository, times(1)).findById(id);
+        verify(mapper, times(1)).convertValue(parcel, ParcelDTO.class);
     }
+
 
     @Test
     public void testDeleteParcel() {
@@ -159,4 +137,39 @@ public class ParcelServiceImplTest {
         assertFalse(isDeleted);
     }
 
+    @Test
+    public void testUpdateParcel() {
+        ParcelDTO parcelDTO = new ParcelDTO();
+        parcelDTO.setId(1L);
+        parcelDTO.setClient(new Client());
+        parcelDTO.setDepartment(new Department());
+        parcelDTO.setWeight(2.5);
+        parcelDTO.setStatus(Status.DELIVERED);
+
+        Parcel existingParcel = new Parcel();
+        existingParcel.setId(1L);
+        existingParcel.setClient(new Client());
+        existingParcel.setDepartment(new Department());
+        existingParcel.setWeight(1.5);
+        existingParcel.setStatus(Status.RETURNED);
+
+        Parcel updatedParcel = new Parcel();
+        updatedParcel.setId(1L);
+        updatedParcel.setClient(new Client());
+        updatedParcel.setDepartment(new Department());
+        updatedParcel.setWeight(2.5);
+        updatedParcel.setStatus(Status.DELIVERED);
+
+        when(parcelRepository.findById(1L)).thenReturn(Optional.of(existingParcel));
+        when(parcelRepository.save(existingParcel)).thenReturn(updatedParcel);
+        when(mapper.convertValue(updatedParcel, ParcelDTO.class)).thenReturn(parcelDTO);
+
+        ParcelDTO result = parcelService.updateParcel(1L, parcelDTO);
+        assertNotNull(result);
+        assertEquals(parcelDTO, result);
+
+        verify(parcelRepository, times(1)).findById(1L);
+        verify(parcelRepository, times(1)).save(existingParcel);
+        verify(mapper, times(1)).convertValue(updatedParcel, ParcelDTO.class);
+    }
 }

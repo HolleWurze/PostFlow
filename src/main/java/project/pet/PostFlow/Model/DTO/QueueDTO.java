@@ -8,7 +8,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class QueueDTORequest {
+public class QueueDTO {
     Long id;
     Integer nextQueueNumber;
     Request currentRequest;

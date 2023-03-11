@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import project.pet.PostFlow.CustomException.AlreadyExistsException;
-import project.pet.PostFlow.Model.DTO.DepartmentDTORequest;
+import project.pet.PostFlow.Model.DTO.DepartmentDTO;
 import project.pet.PostFlow.Model.Entity.Department;
 import project.pet.PostFlow.Model.Entity.Employee;
 import project.pet.PostFlow.Model.Entity.Parcel;
@@ -29,16 +29,16 @@ public class DepartmentServiceImpl implements DepartmentService {
     private final ObjectMapper mapper;
 
     @Override
-    public DepartmentDTORequest createDepartment(DepartmentDTORequest departmentDTORequest) {
-        departmentRepository.findById(departmentDTORequest.getId()).ifPresent(
+    public DepartmentDTO createDepartment(DepartmentDTO departmentDTO) {
+        departmentRepository.findById(departmentDTO.getId()).ifPresent(
                 c -> {
                     throw new AlreadyExistsException("Отделение с таким ID уже существует ", HttpStatus.BAD_REQUEST);
                 }
         );
 
-        Department department = mapper.convertValue(departmentDTORequest, Department.class);
+        Department department = mapper.convertValue(departmentDTO, Department.class);
         Department save = departmentRepository.save(department);
-        return mapper.convertValue(save, DepartmentDTORequest.class);
+        return mapper.convertValue(save, DepartmentDTO.class);
 
     }
 
@@ -54,17 +54,17 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
-    public DepartmentDTORequest updateDepartment(Long id, DepartmentDTORequest departmentDTORequest) {
+    public DepartmentDTO updateDepartment(Long id, DepartmentDTO departmentDTO) {
         Department existingDepartment = departmentRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Отделение не найденно по текущему ID " + id));
-        existingDepartment.setName(departmentDTORequest.getName());
-        existingDepartment.setAddress(departmentDTORequest.getAddress());
-        existingDepartment.setEmployees(departmentDTORequest.getEmployees());
-        existingDepartment.setParcels(departmentDTORequest.getParcels());
-        existingDepartment.setRequests(departmentDTORequest.getRequests());
+        existingDepartment.setName(departmentDTO.getName());
+        existingDepartment.setAddress(departmentDTO.getAddress());
+        existingDepartment.setEmployees(departmentDTO.getEmployees());
+        existingDepartment.setParcels(departmentDTO.getParcels());
+        existingDepartment.setRequests(departmentDTO.getRequests());
 
         Department save = departmentRepository.save(existingDepartment);
-        return mapper.convertValue(save, DepartmentDTORequest.class);
+        return mapper.convertValue(save, DepartmentDTO.class);
     }
 
     @Override

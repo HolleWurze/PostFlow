@@ -1,25 +1,18 @@
 package project.pet.PostFlow;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.jupiter.params.shadow.com.univocity.parsers.annotations.Copy;
 import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
-import project.pet.PostFlow.Model.DTO.EmployeeDTORequest;
-import project.pet.PostFlow.Model.Entity.Client;
+import project.pet.PostFlow.Model.DTO.EmployeeDTO;
 import project.pet.PostFlow.Model.Entity.Department;
 import project.pet.PostFlow.Model.Entity.Employee;
 import project.pet.PostFlow.Model.Repository.DepartmentRepository;
 import project.pet.PostFlow.Model.Repository.EmployeeRepository;
-import project.pet.PostFlow.Services.Service.EmployeeService;
 import project.pet.PostFlow.Services.ServiceImpl.EmployeeServiceImpl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,22 +37,22 @@ public class EmployeeServiceImplTest {
 
     @Test
     public void testCreateEmployee() {
-        EmployeeDTORequest employeeDTORequest = new EmployeeDTORequest();
-        employeeDTORequest.setId(1L);
-        employeeDTORequest.setFirstName("Вася");
-        employeeDTORequest.setLastName("Пупкин");
-        employeeDTORequest.setDepartment(departmentRepository.save(new Department()));
+        EmployeeDTO employeeDTO = new EmployeeDTO();
+        employeeDTO.setId(1L);
+        employeeDTO.setFirstName("Вася");
+        employeeDTO.setLastName("Пупкин");
+        employeeDTO.setDepartment(departmentRepository.save(new Department()));
 
-        when(employeeRepository.findById(employeeDTORequest.getId())).thenReturn(Optional.empty());
+        when(employeeRepository.findById(employeeDTO.getId())).thenReturn(Optional.empty());
         when(employeeRepository.save(any(Employee.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        EmployeeDTORequest createdEmployee = employeeServiceImpl.createEmployee(employeeDTORequest);
+        EmployeeDTO createdEmployee = employeeServiceImpl.createEmployee(employeeDTO);
 
-        assertEquals(employeeDTORequest.getFirstName(), createdEmployee.getFirstName());
-        assertEquals(employeeDTORequest.getLastName(), createdEmployee.getLastName());
-        assertEquals(employeeDTORequest.getDepartment(), createdEmployee.getDepartment());
+        assertEquals(employeeDTO.getFirstName(), createdEmployee.getFirstName());
+        assertEquals(employeeDTO.getLastName(), createdEmployee.getLastName());
+        assertEquals(employeeDTO.getDepartment(), createdEmployee.getDepartment());
 
-        verify(employeeRepository, times(1)).findById(employeeDTORequest.getId());
+        verify(employeeRepository, times(1)).findById(employeeDTO.getId());
 
         verify(employeeRepository, times(1)).save(any(Employee.class));
     }
@@ -67,14 +60,14 @@ public class EmployeeServiceImplTest {
     @Test
     public void testUpdateEmployee() {
         Long id = 1L;
-        EmployeeDTORequest employeeDTORequest = new EmployeeDTORequest();
-        employeeDTORequest.setId(id);
-        employeeDTORequest.setFirstName("Вася");
-        employeeDTORequest.setLastName("Пупкин");
+        EmployeeDTO employeeDTO = new EmployeeDTO();
+        employeeDTO.setId(id);
+        employeeDTO.setFirstName("Вася");
+        employeeDTO.setLastName("Пупкин");
         Department department = new Department();
         department.setName("Москва");
         department.setAddress("Лиговский 1");
-        employeeDTORequest.setDepartment(department);
+        employeeDTO.setDepartment(department);
 
         Employee employee = new Employee();
         employee.setId(id);
@@ -84,12 +77,12 @@ public class EmployeeServiceImplTest {
         when(employeeRepository.findById(id)).thenReturn(Optional.of(employee));
         when(employeeRepository.save(Mockito.any(Employee.class))).thenReturn(employee);
 
-        EmployeeDTORequest updatedEmployeeDTO = employeeServiceImpl.updateEmployee(id, employeeDTORequest);
+        EmployeeDTO updatedEmployeeDTO = employeeServiceImpl.updateEmployee(id, employeeDTO);
 
         assertNotNull(updatedEmployeeDTO);
         assertEquals(id, updatedEmployeeDTO.getId());
-        assertEquals(employeeDTORequest.getFirstName(), updatedEmployeeDTO.getFirstName());
-        assertEquals(employeeDTORequest.getLastName(), updatedEmployeeDTO.getLastName());
+        assertEquals(employeeDTO.getFirstName(), updatedEmployeeDTO.getFirstName());
+        assertEquals(employeeDTO.getLastName(), updatedEmployeeDTO.getLastName());
         assertEquals(department.getName(), updatedEmployeeDTO.getDepartment().getName());
         assertEquals(department.getAddress(), updatedEmployeeDTO.getDepartment().getAddress());
         verify(employeeRepository, times(1)).findById(id);

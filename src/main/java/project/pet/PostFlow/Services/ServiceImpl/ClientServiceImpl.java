@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import project.pet.PostFlow.CustomException.AlreadyExistsException;
 import project.pet.PostFlow.CustomException.NotFoundException;
 import project.pet.PostFlow.Enum.CRUDStatus;
-import project.pet.PostFlow.Model.DTO.ClientDTORequest;
+import project.pet.PostFlow.Model.DTO.ClientDTO;
 import project.pet.PostFlow.Model.Entity.Client;
 import project.pet.PostFlow.Model.Repository.ClientRepository;
 import project.pet.PostFlow.Services.Service.ClientService;
@@ -31,10 +31,10 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public ClientDTORequest getClientById(Long id) {
+    public ClientDTO getClientById(Long id) {
         Client client = clientRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Client not found with id: " + id));
-        return mapper.convertValue(client, ClientDTORequest.class);
+        return mapper.convertValue(client, ClientDTO.class);
     }
 
     @Override
@@ -48,27 +48,27 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public ClientDTORequest updateClient(ClientDTORequest clientDTORequest) {
+    public ClientDTO updateClient(ClientDTO clientDTORequest) {
         Client existingClient = clientRepository.findById(clientDTORequest.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Клиент с таким ID не найден " + clientDTORequest.getId()));
         existingClient.setFirstName(clientDTORequest.getFirstName());
         existingClient.setLastName(clientDTORequest.getLastName());
         existingClient.setDepartment(clientDTORequest.getDepartment());
 
-        return mapper.convertValue(clientRepository.save(existingClient), ClientDTORequest.class);
+        return mapper.convertValue(clientRepository.save(existingClient), ClientDTO.class);
     }
 
     @Override
-    public ClientDTORequest createClient(ClientDTORequest clientDTORequest) {
-        clientRepository.findById(clientDTORequest.getId()).ifPresent(
+    public ClientDTO createClient(ClientDTO clientDTO) {
+        clientRepository.findById(clientDTO.getId()).ifPresent(
                 c -> {
                     throw new AlreadyExistsException("Клиент с таким ID уже существует ", HttpStatus.BAD_REQUEST);
                 }
         );
 
-        Client client = mapper.convertValue(clientDTORequest, Client.class);
+        Client client = mapper.convertValue(clientDTO, Client.class);
         Client save = clientRepository.save(client);
-        return mapper.convertValue(save, ClientDTORequest.class);
+        return mapper.convertValue(save, ClientDTO.class);
     }
 
     @Override

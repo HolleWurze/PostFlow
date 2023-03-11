@@ -6,9 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import project.pet.PostFlow.CustomException.AlreadyExistsException;
-import project.pet.PostFlow.Model.DTO.ClientDTORequest;
-import project.pet.PostFlow.Model.DTO.ParcelDTORequest;
-import project.pet.PostFlow.Model.Entity.Client;
+import project.pet.PostFlow.Model.DTO.ParcelDTO;
 import project.pet.PostFlow.Model.Entity.Parcel;
 import project.pet.PostFlow.Model.Repository.ParcelRepository;
 import project.pet.PostFlow.Services.Service.ParcelService;
@@ -24,10 +22,10 @@ public class ParcelServiceImpl implements ParcelService {
     private final ObjectMapper mapper;
 
     @Override
-    public ParcelDTORequest getParcelById(Long id) {
+    public ParcelDTO getParcelById(Long id) {
         Parcel parcel = parcelRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Посылка не найдена с этим ID: " + id));
-        return mapper.convertValue(parcel, ParcelDTORequest.class);
+        return mapper.convertValue(parcel, ParcelDTO.class);
     }
 
     @Override
@@ -36,30 +34,40 @@ public class ParcelServiceImpl implements ParcelService {
     }
 
     @Override
-    public ParcelDTORequest createParcel(ParcelDTORequest parcelDTORequest) {
-        parcelRepository.findById(parcelDTORequest.getId()).ifPresent(
-                c -> {
-                    throw new AlreadyExistsException("Посылка с таким ID уже существует ", HttpStatus.BAD_REQUEST);
-                }
-        );
-        Parcel parcel = mapper.convertValue(parcelDTORequest, Parcel.class);
-        Parcel save = parcelRepository.save(parcel);
-        return mapper.convertValue(save, ParcelDTORequest.class);
+    public ParcelDTO createParcel(ParcelDTO parcelDTO) {
+        log.info("ParcelDTO received: {}", parcelDTO);
+        if (parcelRepository.existsById(parcelDTO.getId())) {
+            throw new AlreadyExistsException("Посылка с таким ID уже существует ", HttpStatus.BAD_REQUEST);
+        }
+        log.debug("ParcelDTO fields: id={}, client={}, department={}, weight={}, status={}, trackingNumber={}, description={}",
+                parcelDTO.getId(),
+                parcelDTO.getClient(),
+                parcelDTO.getDepartment(),
+                parcelDTO.getWeight(),
+                parcelDTO.getStatus(),
+                parcelDTO.getTrackingNumber(),
+                parcelDTO.getDescription());
+        Parcel parcel = mapper.convertValue(parcelDTO, Parcel.class);
+
+//        if (parcel == null) {
+//            throw new IllegalArgumentException("Non converted to DTO");
+//        }
+
+        Parcel savedParcel = parcelRepository.save(parcel);
+        return mapper.convertValue(savedParcel, ParcelDTO.class);
     }
 
     @Override
-    public ParcelDTORequest updateParcel(Long id, ParcelDTORequest parcelDTORequest) {
+    public ParcelDTO updateParcel(Long id, ParcelDTO parcelDTO) {
         Parcel existingParcel = parcelRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Клиент с таким ID не найден " + parcelDTORequest.getId()));
-//        if (existingParcel != null) {
-            existingParcel.setClient(parcelDTORequest.getClient());
-            existingParcel.setDepartment(parcelDTORequest.getDepartment());
-            existingParcel.setWeight(parcelDTORequest.getWeight());
-            existingParcel.setStatus(parcelDTORequest.getStatus());
-            return mapper.convertValue(parcelRepository.save(existingParcel), ParcelDTORequest.class);
-//        } else {
-//            return null;
-//        }
+                .orElseThrow(() -> new EntityNotFoundException("Клиент с таким ID не найден " + parcelDTO.getId()));
+        existingParcel.setClient(parcelDTO.getClient());
+        existingParcel.setDepartment(parcelDTO.getDepartment());
+        existingParcel.setWeight(parcelDTO.getWeight());
+        existingParcel.setStatus(parcelDTO.getStatus());
+
+        return mapper.convertValue(parcelRepository.save(existingParcel), ParcelDTO.class);
+
     }
 
     @Override

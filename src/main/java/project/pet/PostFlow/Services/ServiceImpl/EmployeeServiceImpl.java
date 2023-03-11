@@ -7,13 +7,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import project.pet.PostFlow.CustomException.AlreadyExistsException;
 import project.pet.PostFlow.CustomException.ResourceNotFoundException;
-import project.pet.PostFlow.Model.DTO.EmployeeDTORequest;
+import project.pet.PostFlow.Model.DTO.EmployeeDTO;
 import project.pet.PostFlow.Model.Entity.Employee;
 import project.pet.PostFlow.Model.Repository.EmployeeRepository;
 import project.pet.PostFlow.Services.Service.EmployeeService;
 
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -25,29 +24,29 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final ObjectMapper mapper;
 
     @Override
-    public EmployeeDTORequest createEmployee(@NotNull EmployeeDTORequest employeeDTORequest) {
-        employeeRepository.findById(employeeDTORequest.getId()).ifPresent(
+    public EmployeeDTO createEmployee(@NotNull EmployeeDTO employeeDTO) {
+        employeeRepository.findById(employeeDTO.getId()).ifPresent(
                 c -> {
                     throw new AlreadyExistsException("Сотрудник с таким ID уже существует ", HttpStatus.BAD_REQUEST);
                 }
         );
 
-        Employee employee = mapper.convertValue(employeeDTORequest, Employee.class);
+        Employee employee = mapper.convertValue(employeeDTO, Employee.class);
         Employee save = employeeRepository.save(employee);
-        return mapper.convertValue(save, EmployeeDTORequest.class);
+        return mapper.convertValue(save, EmployeeDTO.class);
     }
 
     @Override
-    public EmployeeDTORequest updateEmployee(Long id, EmployeeDTORequest employeeDTORequest) {
+    public EmployeeDTO updateEmployee(Long id, EmployeeDTO employeeDTO) {
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee", "id", id));
 
-        employee.setFirstName(employeeDTORequest.getFirstName());
-        employee.setLastName(employeeDTORequest.getLastName());
-        employee.setDepartment(employeeDTORequest.getDepartment());
+        employee.setFirstName(employeeDTO.getFirstName());
+        employee.setLastName(employeeDTO.getLastName());
+        employee.setDepartment(employeeDTO.getDepartment());
 
         Employee save = employeeRepository.save(employee);
-        return mapper.convertValue(save, EmployeeDTORequest.class);
+        return mapper.convertValue(save, EmployeeDTO.class);
     }
 
     @Override

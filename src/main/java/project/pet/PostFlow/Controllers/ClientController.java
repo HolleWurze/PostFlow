@@ -1,10 +1,11 @@
 package project.pet.PostFlow.Controllers;
 
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import project.pet.PostFlow.CustomException.ResourceNotFoundException;
-import project.pet.PostFlow.Model.DTO.ClientDTORequest;
+import project.pet.PostFlow.Model.DTO.ClientDTO;;
 import project.pet.PostFlow.Model.Entity.Client;
 import project.pet.PostFlow.Services.Service.ClientService;
 
@@ -18,7 +19,6 @@ public class ClientController {
 
     private final ClientService clientService;
 
-    private ModelMapper modelMapper;
 
     public ClientController(ClientService clientService) {
         this.clientService = clientService;
@@ -30,21 +30,21 @@ public class ClientController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ClientDTORequest> getClientById(@PathVariable(value = "id") Long clientId) {
-        ClientDTORequest clientDTORequest = new ClientDTORequest();
-        clientDTORequest.setId(clientId);
-        ClientDTORequest client = clientService.getClientById(clientId);
+    public ResponseEntity<ClientDTO> getClientById(@PathVariable(value = "id") Long clientId) {
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setId(clientId);
+        ClientDTO client = clientService.getClientById(clientId);
         return ResponseEntity.ok().body(client);
     }
 
     @PostMapping
-    public ResponseEntity<ClientDTORequest> createClient(@RequestBody ClientDTORequest clientDTORequest) {
-        return ResponseEntity.ok(clientService.createClient(clientDTORequest));
+    public ResponseEntity<ClientDTO> createClient(@RequestBody ClientDTO clientDTO) {
+        return ResponseEntity.ok(clientService.createClient(clientDTO));
     }
 
     @PutMapping
-    public ResponseEntity<ClientDTORequest> updateClient(@RequestBody ClientDTORequest clientDTORequest) throws ResourceNotFoundException {
-        return ResponseEntity.ok(clientService.updateClient(clientDTORequest));
+    public ResponseEntity<ClientDTO> updateClient(@RequestBody ClientDTO clientDTO) throws ResourceNotFoundException {
+        return ResponseEntity.ok(clientService.updateClient(clientDTO));
     }
 
     @DeleteMapping("/{id}")

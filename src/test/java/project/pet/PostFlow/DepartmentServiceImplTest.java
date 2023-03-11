@@ -1,7 +1,6 @@
 package project.pet.PostFlow;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -11,10 +10,11 @@ import org.mockito.junit.MockitoJUnitRunner;
 import project.pet.PostFlow.Model.Entity.Department;
 import project.pet.PostFlow.Model.Entity.Employee;
 import project.pet.PostFlow.Model.Entity.Parcel;
-import project.pet.PostFlow.Model.DTO.DepartmentDTORequest;
+import project.pet.PostFlow.Model.DTO.DepartmentDTO;
 import project.pet.PostFlow.Model.Repository.DepartmentRepository;
 import project.pet.PostFlow.Model.Repository.EmployeeRepository;
 import project.pet.PostFlow.Model.Repository.ParcelRepository;
+
 import project.pet.PostFlow.Services.ServiceImpl.DepartmentServiceImpl;
 
 import java.util.ArrayList;
@@ -45,19 +45,19 @@ public class DepartmentServiceImplTest {
 
     @Test
     public void testCreateDepartment() {
-        DepartmentDTORequest departmentDTORequest = new DepartmentDTORequest();
-        departmentDTORequest.setName("Отделение 1");
-        departmentDTORequest.setAddress("Москва");
+        DepartmentDTO departmentDTO = new DepartmentDTO();
+        departmentDTO.setName("Отделение 1");
+        departmentDTO.setAddress("Москва");
 
-        when(departmentRepository.findById(departmentDTORequest.getId())).thenReturn(Optional.empty());
+        when(departmentRepository.findById(departmentDTO.getId())).thenReturn(Optional.empty());
         when(departmentRepository.save(any(Department.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        DepartmentDTORequest createdDepartmentDTO = departmentService.createDepartment(departmentDTORequest);
+        DepartmentDTO createdDepartmentDTO = departmentService.createDepartment(departmentDTO);
 
-        assertEquals(departmentDTORequest.getName(), createdDepartmentDTO.getName());
-        assertEquals(departmentDTORequest.getAddress(), createdDepartmentDTO.getAddress());
+        assertEquals(departmentDTO.getName(), createdDepartmentDTO.getName());
+        assertEquals(departmentDTO.getAddress(), createdDepartmentDTO.getAddress());
 
-        verify(departmentRepository, times(1)).findById(departmentDTORequest.getId());
+        verify(departmentRepository, times(1)).findById(departmentDTO.getId());
 
         verify(departmentRepository, times(1)).save(any(Department.class));
     }
@@ -101,9 +101,9 @@ public class DepartmentServiceImplTest {
 
     @Test
     public void testUpdateDepartment() {
-        DepartmentDTORequest departmentDTORequest = new DepartmentDTORequest();
-        departmentDTORequest.setName("Отделение 1");
-        departmentDTORequest.setAddress("Москва");
+        DepartmentDTO departmentDTO = new DepartmentDTO();
+        departmentDTO.setName("Отделение 1");
+        departmentDTO.setAddress("Москва");
 
         Department existingDepartment = new Department();
         existingDepartment.setId(1L);
@@ -113,10 +113,10 @@ public class DepartmentServiceImplTest {
         when(departmentRepository.findById(existingDepartment.getId())).thenReturn(Optional.of(existingDepartment));
         when(departmentRepository.save(any(Department.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        DepartmentDTORequest updatedDepartmentDTO = departmentService.updateDepartment(existingDepartment.getId(), departmentDTORequest);
+        DepartmentDTO updatedDepartmentDTO = departmentService.updateDepartment(existingDepartment.getId(), departmentDTO);
 
-        assertEquals(departmentDTORequest.getName(), updatedDepartmentDTO.getName());
-        assertEquals(departmentDTORequest.getAddress(), updatedDepartmentDTO.getAddress());
+        assertEquals(departmentDTO.getName(), updatedDepartmentDTO.getName());
+        assertEquals(departmentDTO.getAddress(), updatedDepartmentDTO.getAddress());
 
         verify(departmentRepository, times(1)).findById(existingDepartment.getId());
 

@@ -1,7 +1,6 @@
 package project.pet.PostFlow;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.*;
@@ -9,19 +8,15 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.modelmapper.ModelMapper;
 import project.pet.PostFlow.Enum.ClientPriority;
 import project.pet.PostFlow.Enum.RequestType;
-import project.pet.PostFlow.Model.DTO.ClientDTORequest;
-import project.pet.PostFlow.Model.DTO.RequestDTORequest;
-import project.pet.PostFlow.Model.Entity.Client;
-import project.pet.PostFlow.Model.Entity.Department;
-import project.pet.PostFlow.Model.Entity.Parcel;
-import project.pet.PostFlow.Model.Entity.Request;
+import project.pet.PostFlow.Model.DTO.ClientDTO;
+import project.pet.PostFlow.Model.DTO.RequestDTO;
+import project.pet.PostFlow.Model.Entity.*;
 import project.pet.PostFlow.Model.Repository.ClientRepository;
 import project.pet.PostFlow.Model.Repository.RequestRepository;
 import project.pet.PostFlow.Services.Service.RequestService;
 import project.pet.PostFlow.Services.ServiceImpl.RequestServiceImpl;
 
 
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -99,24 +94,26 @@ public class RequestServiceImplTest {
     }
 
     @Test
-    public void testGetRequestById() {
+    public void testDeleteRequestById() {
         Long requestId = 1L;
-        Request request = new Request();
-        request.setId(requestId);
-        when(requestRepository.findById(requestId)).thenReturn(Optional.of(request));
 
-       // Request result = requestServiceImpl.getRequestById(requestId);
+        when(requestRepository.findById(requestId)).thenReturn(Optional.of(new Request()));
 
-//        assertNotNull(result);
-//        assertEquals(request, result);
+        boolean result = requestServiceImpl.deleteRequestById(requestId);
+
+        verify(requestRepository, times(1)).findById(requestId);
+        verify(requestRepository, times(1)).deleteById(requestId);
+
+        assertTrue(result);
     }
+
 
     @Test
     public void testCreateRequest() {
-        ClientDTORequest clientDTORequest = new ClientDTORequest();
-        clientDTORequest.setFirstName("Вася");
-        clientDTORequest.setLastName("Пупкин");
-        clientDTORequest.setClientPriority(ClientPriority.REGULAR);
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setFirstName("Вася");
+        clientDTO.setLastName("Пупкин");
+        clientDTO.setClientPriority(ClientPriority.REGULAR);
 
         RequestType requestType = RequestType.GET_PARCEL;
         String appointmentTime = "2022-01-01 00:00:00";
@@ -125,9 +122,9 @@ public class RequestServiceImplTest {
         when(clientRepository.save(any())).thenReturn(new Client());
         when(requestRepository.save(any())).thenReturn(request);
 
-        //Request createdRequest = requestServiceImpl.createRequest(clientDTORequest, requestType, appointmentTime);
+        RequestDTO createdRequest = requestServiceImpl.createRequest(clientDTO, requestType, appointmentTime);
 
-        //assertNotNull(createdRequest);
+        assertNotNull(createdRequest);
     }
 
     @Test
@@ -140,21 +137,21 @@ public class RequestServiceImplTest {
         existingRequest.setEstimatedTime("10 минут");
         existingRequest.setRequestType(RequestType.IN_PROGRESS);
 
-        RequestDTORequest requestDTORequest = new RequestDTORequest();
-        requestDTORequest.setId(existingRequest.getId());
-        requestDTORequest.setDepartment(new Department());
-        requestDTORequest.setParcel(new Parcel());
-        requestDTORequest.setWaitingTime("10 минут");
-        requestDTORequest.setEstimatedTime("15 минут");
-        requestDTORequest.setRequestType(RequestType.DONE);
+        RequestDTO requestDTO = new RequestDTO();
+        requestDTO.setId(existingRequest.getId());
+        requestDTO.setDepartment(new Department());
+        requestDTO.setParcel(new Parcel());
+        requestDTO.setWaitingTime("10 минут");
+        requestDTO.setEstimatedTime("15 минут");
+        requestDTO.setRequestType(RequestType.DONE);
 
         when(requestRepository.findById(existingRequest.getId())).thenReturn(Optional.of(existingRequest));
         when(requestRepository.save(existingRequest)).thenReturn(existingRequest);
 
-        RequestDTORequest updatedRequestDTORequest = requestServiceImpl.updateRequest(requestDTORequest);
-        assertNotNull(updatedRequestDTORequest);
-        assertEquals(requestDTORequest.getWaitingTime(), existingRequest.getWaitingTime());
-        assertEquals(requestDTORequest.getEstimatedTime(), existingRequest.getEstimatedTime());
-        assertEquals(requestDTORequest.getRequestType(), existingRequest.getRequestType());
+        RequestDTO updatedRequestDTO = requestServiceImpl.updateRequest(requestDTO);
+        assertNotNull(updatedRequestDTO);
+        assertEquals(requestDTO.getWaitingTime(), existingRequest.getWaitingTime());
+        assertEquals(requestDTO.getEstimatedTime(), existingRequest.getEstimatedTime());
+        assertEquals(requestDTO.getRequestType(), existingRequest.getRequestType());
     }
 }

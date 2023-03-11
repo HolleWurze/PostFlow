@@ -10,7 +10,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class EmployeeDTORequest {
+public class EmployeeDTO {
     Long id;
     String firstName;
     String lastName;

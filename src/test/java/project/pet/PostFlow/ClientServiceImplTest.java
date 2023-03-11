@@ -10,7 +10,7 @@ import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import project.pet.PostFlow.Enum.CRUDStatus;
-import project.pet.PostFlow.Model.DTO.ClientDTORequest;
+import project.pet.PostFlow.Model.DTO.ClientDTO;
 import project.pet.PostFlow.Model.Entity.Client;
 import project.pet.PostFlow.Model.Entity.Department;
 import project.pet.PostFlow.Model.Repository.ClientRepository;
@@ -61,7 +61,7 @@ public class ClientServiceImplTest {
 
         when(clientRepository.findById(id)).thenReturn(Optional.of(client));
 
-        ClientDTORequest clientDTO = clientService.getClientById(id);
+        ClientDTO clientDTO = clientService.getClientById(id);
 
         assertEquals(firstName, clientDTO.getFirstName());
         assertEquals(lastName, clientDTO.getLastName());
@@ -77,7 +77,7 @@ public class ClientServiceImplTest {
         department.setName("Голикова");
         clientToSave.setDepartment(department);
 
-        Mockito.when(clientRepository.save(clientToSave)).thenReturn(clientToSave);
+        when(clientRepository.save(clientToSave)).thenReturn(clientToSave);
 
         Client savedClient = clientService.addClient(clientToSave);
 
@@ -85,7 +85,7 @@ public class ClientServiceImplTest {
         assertEquals("Пупкин", savedClient.getLastName());
         assertEquals("Голикова", savedClient.getDepartment().getName());
 
-        Mockito.verify(clientRepository, Mockito.times(1)).save(clientToSave);
+        verify(clientRepository, times(1)).save(clientToSave);
     }
 
     @Test
@@ -120,7 +120,7 @@ public class ClientServiceImplTest {
         clientToUpdate.setLastName("Пупкин");
         clientToUpdate.setDepartment(department);
 
-        ClientDTORequest updatedClientDTO = new ClientDTORequest();
+        ClientDTO updatedClientDTO = new ClientDTO();
         Department department1 = new Department();
         department.setName("Невский");
         updatedClientDTO.setId(1L);
@@ -131,7 +131,7 @@ public class ClientServiceImplTest {
         when(clientRepository.findById(1L)).thenReturn(Optional.of(clientToUpdate));
         when(clientRepository.save(any(Client.class))).thenAnswer(i -> i.getArguments()[0]);
 
-        ClientDTORequest actualClientDTO = clientService.updateClient(updatedClientDTO);
+        ClientDTO actualClientDTO = clientService.updateClient(updatedClientDTO);
 
         verify(clientRepository, times(1)).findById(1L);
 
@@ -145,7 +145,7 @@ public class ClientServiceImplTest {
 
     @Test
     public void testCreateClient() {
-        ClientDTORequest clientDTORequest = new ClientDTORequest();
+        ClientDTO clientDTORequest = new ClientDTO();
         clientDTORequest.setFirstName("Вася");
         clientDTORequest.setLastName("Пупкин");
         Department department = new Department();
@@ -155,7 +155,7 @@ public class ClientServiceImplTest {
         when(clientRepository.findById(clientDTORequest.getId())).thenReturn(Optional.empty());
         when(clientRepository.save(any(Client.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        ClientDTORequest createdClientDTO = clientService.createClient(clientDTORequest);
+        ClientDTO createdClientDTO = clientService.createClient(clientDTORequest);
 
         assertEquals(clientDTORequest.getFirstName(), createdClientDTO.getFirstName());
         assertEquals(clientDTORequest.getLastName(), createdClientDTO.getLastName());

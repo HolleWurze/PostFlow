@@ -4,8 +4,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import project.pet.PostFlow.Enum.RequestType;
-import project.pet.PostFlow.Model.DTO.ClientDTORequest;
-import project.pet.PostFlow.Model.DTO.RequestDTORequest;
+import project.pet.PostFlow.Model.DTO.ClientDTO;
+import project.pet.PostFlow.Model.DTO.RequestDTO;
 import project.pet.PostFlow.Model.Entity.Client;
 import project.pet.PostFlow.Model.Entity.Request;
 import project.pet.PostFlow.Model.Repository.ClientRepository;
@@ -13,7 +13,6 @@ import project.pet.PostFlow.Model.Repository.RequestRepository;
 import project.pet.PostFlow.Services.Service.ClientService;
 import project.pet.PostFlow.Services.Service.QueueService;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -27,8 +26,8 @@ public class QueueController {
     private ClientRepository clientRepository;
 
     @PostMapping("/add")
-    public ResponseEntity<RequestDTORequest> addRequest(@RequestBody Request request) {
-        ClientDTORequest client = clientService.getClientById(request.getClient().getId());
+    public ResponseEntity<RequestDTO> addRequest(@RequestBody Request request) {
+        ClientDTO client = clientService.getClientById(request.getClient().getId());
         if (client == null) {
             return ResponseEntity.notFound().build();
         }
@@ -36,7 +35,7 @@ public class QueueController {
         RequestType requestType = request.getRequestType();
         String appointmentTime = request.getAppointmentTime();
 
-        RequestDTORequest newRequest = queueService.addRequest(client, requestType, appointmentTime);
+        RequestDTO newRequest = queueService.addRequest(client, requestType, appointmentTime);
 
         if (newRequest == null) {
             return ResponseEntity.ok(null);
@@ -46,8 +45,8 @@ public class QueueController {
     }
 
     @GetMapping("/current")
-    public ResponseEntity<RequestDTORequest> getCurrentRequest() {
-        RequestDTORequest currentRequest = queueService.getCurrentRequest();
+    public ResponseEntity<RequestDTO> getCurrentRequest() {
+        RequestDTO currentRequest = queueService.getCurrentRequest();
         if (currentRequest == null) {
             return ResponseEntity.notFound().build();
         }

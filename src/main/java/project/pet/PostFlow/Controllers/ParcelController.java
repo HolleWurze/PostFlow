@@ -4,8 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import project.pet.PostFlow.Model.DTO.ClientDTORequest;
-import project.pet.PostFlow.Model.DTO.ParcelDTORequest;
+import project.pet.PostFlow.Model.DTO.ParcelDTO;
 import project.pet.PostFlow.Model.Entity.Parcel;
 import project.pet.PostFlow.Services.Service.ParcelService;
 
@@ -23,10 +22,10 @@ public class ParcelController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ParcelDTORequest> getParcelById(@PathVariable Long id) {
-        ParcelDTORequest parcelDTORequest = new ParcelDTORequest();
+    public ResponseEntity<ParcelDTO> getParcelById(@PathVariable Long id) {
+        ParcelDTO parcelDTORequest = new ParcelDTO();
         parcelDTORequest.setId(id);
-        ParcelDTORequest parcel = parcelService.getParcelById(id);
+        ParcelDTO parcel = parcelService.getParcelById(id);
         return ResponseEntity.ok().body(parcel);
     }
 
@@ -41,14 +40,14 @@ public class ParcelController {
     }
 
     @PostMapping
-    public ResponseEntity<ParcelDTORequest> createParcel(@RequestBody ParcelDTORequest parcelDTORequest) {
-        ParcelDTORequest createdParcel = parcelService.createParcel(parcelDTORequest);
+    public ResponseEntity<ParcelDTO> createParcel(@RequestBody ParcelDTO parcelDTO) {
+        ParcelDTO createdParcel = parcelService.createParcel(parcelDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdParcel);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ParcelDTORequest> updateParcel(@PathVariable Long id, @RequestBody ParcelDTORequest parcelDTORequest) {
-        ParcelDTORequest updatedParcel = parcelService.updateParcel(id, parcelDTORequest);
+    public ResponseEntity<ParcelDTO> updateParcel(@PathVariable Long id, @RequestBody ParcelDTO parcelDTO) {
+        ParcelDTO updatedParcel = parcelService.updateParcel(id, parcelDTO);
         if (updatedParcel != null) {
             return ResponseEntity.ok(parcelService.updateParcel(id, updatedParcel));
         } else {

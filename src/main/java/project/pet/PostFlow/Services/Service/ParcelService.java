@@ -1,14 +1,14 @@
 package project.pet.PostFlow.Services.Service;
 
-import project.pet.PostFlow.Model.DTO.ParcelDTORequest;
+import project.pet.PostFlow.Model.DTO.ParcelDTO;
 import project.pet.PostFlow.Model.Entity.Parcel;
 
 import java.util.List;
 
 public interface ParcelService {
-    ParcelDTORequest getParcelById(Long id);
+    ParcelDTO getParcelById(Long id);
     List<Parcel> getAllParcels();
-    ParcelDTORequest createParcel(ParcelDTORequest parcelDTORequest);
-    ParcelDTORequest updateParcel(Long id, ParcelDTORequest parcelDTORequest);
+    ParcelDTO createParcel(ParcelDTO parcelDTO);
+    ParcelDTO updateParcel(Long id, ParcelDTO parcelDTO);
     boolean deleteParcel(Long id);
 }

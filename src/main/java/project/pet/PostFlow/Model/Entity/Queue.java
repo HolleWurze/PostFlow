@@ -29,10 +29,10 @@ public class Queue {
 
     private Integer nextQueueNumber;
 
-    @OneToOne(cascade = CascadeType.ALL) // при удалении конкретного запроса мы удаляем его
+    @OneToOne(cascade = CascadeType.ALL)
     private Request currentRequest;
 
-    @OneToMany //насчет жадного режима, если currentRequest, то из листа запросов мы его должны удалить
+    @OneToMany
     private List<Request> requests;
 
 }

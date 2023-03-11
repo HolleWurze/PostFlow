@@ -14,7 +14,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class ClientDTORequest {
+public class ClientDTO {
     Long id;
     String firstName;
     String lastName;

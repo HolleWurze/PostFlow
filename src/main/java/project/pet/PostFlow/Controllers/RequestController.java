@@ -6,13 +6,12 @@ import org.springframework.web.bind.annotation.*;
 import project.pet.PostFlow.CustomException.NotFoundException;
 import project.pet.PostFlow.CustomException.ResourceNotFoundException;
 import project.pet.PostFlow.Enum.RequestType;
-import project.pet.PostFlow.Model.DTO.ClientDTORequest;
-import project.pet.PostFlow.Model.DTO.RequestDTORequest;
+import project.pet.PostFlow.Model.DTO.ClientDTO;
+import project.pet.PostFlow.Model.DTO.RequestDTO;
 import project.pet.PostFlow.Model.Entity.Request;
 import project.pet.PostFlow.Services.Service.ClientService;
 import project.pet.PostFlow.Services.Service.RequestService;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -23,9 +22,9 @@ public class RequestController {
     private ClientService clientService;
 
     @PostMapping("")
-    public ResponseEntity<RequestDTORequest> createRequest(@RequestBody Map<String, String> requestParams) {
+    public ResponseEntity<RequestDTO> createRequest(@RequestBody Map<String, String> requestParams) {
         Long clientId = Long.parseLong(requestParams.get("clientId"));
-        ClientDTORequest client = clientService.getClientById(clientId);
+        ClientDTO client = clientService.getClientById(clientId);
         if (client == null) {
             throw new NotFoundException("Клиент с id " + clientId + " не найден");
         }
@@ -34,13 +33,13 @@ public class RequestController {
         }
         RequestType requestType = RequestType.valueOf(requestParams.get("requestType"));
         String appointmentTime = requestParams.get("appointmentTime");
-        RequestDTORequest request = requestService.createRequest(client, requestType, appointmentTime);
+        RequestDTO request = requestService.createRequest(client, requestType, appointmentTime);
         return ResponseEntity.status(HttpStatus.CREATED).body(request);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<RequestDTORequest> getRequestById(@PathVariable("id") Long id) throws ResourceNotFoundException {
-        RequestDTORequest request = requestService.getRequestById(id);
+    public ResponseEntity<RequestDTO> getRequestById(@PathVariable("id") Long id) throws ResourceNotFoundException {
+        RequestDTO request = requestService.getRequestById(id);
         if (request == null) {
             throw new ResourceNotFoundException("Request not found for this id :: " + id);
         }
@@ -57,9 +56,9 @@ public class RequestController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<RequestDTORequest> updateRequest(@PathVariable("id") Long id, @RequestBody RequestDTORequest requestDTORequest) throws ResourceNotFoundException {
-        requestDTORequest.setId(id);
-        RequestDTORequest updatedRequest = requestService.updateRequest(requestDTORequest);
+    public ResponseEntity<RequestDTO> updateRequest(@PathVariable("id") Long id, @RequestBody RequestDTO requestDTO) throws ResourceNotFoundException {
+        requestDTO.setId(id);
+        RequestDTO updatedRequest = requestService.updateRequest(requestDTO);
         if (updatedRequest == null) {
             throw new ResourceNotFoundException("Запрос не найден с этим ID :: " + id);
         }

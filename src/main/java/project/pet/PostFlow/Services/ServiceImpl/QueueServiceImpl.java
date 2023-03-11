@@ -7,14 +7,13 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import project.pet.PostFlow.Enum.ClientPriority;
 import project.pet.PostFlow.Enum.RequestType;
-import project.pet.PostFlow.Model.DTO.ClientDTORequest;
-import project.pet.PostFlow.Model.DTO.RequestDTORequest;
+import project.pet.PostFlow.Model.DTO.ClientDTO;
+import project.pet.PostFlow.Model.DTO.RequestDTO;
 import project.pet.PostFlow.Model.Entity.Client;
 import project.pet.PostFlow.Model.Entity.Queue;
 import project.pet.PostFlow.Model.Entity.Request;
 import project.pet.PostFlow.Model.Repository.QueueRepository;
 import project.pet.PostFlow.Services.Service.QueueService;
-import project.pet.PostFlow.Services.Service.RequestService;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -28,59 +27,50 @@ public class QueueServiceImpl implements QueueService {
 
     private final Map<Client, Request> queue = new LinkedHashMap<>();
     private final QueueRepository queueRepository;
-    private final RequestService requestService;
-    private final int averageWaitingTimeInMinutes;
+    private final int averageWaitingTimeInMinutes = 10;
 
     private final ModelMapper modelMapper;
 
     private final ObjectMapper mapper;
 
-
     @Override
-    public RequestDTORequest addRequest(ClientDTORequest clientDTORequest, RequestType requestType, String appointmentTime) {
-        // Если у клиента приоритетный статус то мы его сразу обслуживаем
-        if (clientDTORequest.getClientPriority() == ClientPriority.PRIORITY) {
-            RequestDTORequest request = requestService.createRequest(clientDTORequest, requestType, appointmentTime);
-            request.setWaitingTime(String.valueOf(Duration.ZERO));
-            return mapper.convertValue(request, RequestDTORequest.class);
-        }
-
+    public RequestDTO addRequest(ClientDTO clientDTO, RequestType requestType, String appointmentTime) {
         Queue queue = getOrCreateQueue();
-        Client client = modelMapper.map(clientDTORequest, Client.class);
+        Client client = modelMapper.map(clientDTO, Client.class);
+        Request request = new Request(client, requestType, appointmentTime);
 
-        List<Request> requests = queue.getRequests().stream()
-                .filter(r -> r.getClient().equals(client))
-                .collect(Collectors.toList());
-
-        if (!requests.isEmpty()) {
-            Request lastRequest = requests.get(requests.size() - 1);
-            recalculateEstimatedTime(client);
-            RequestDTORequest request = requestService.createRequest(clientDTORequest, requestType, appointmentTime);
-            Optional<String> appointmentDateTime = Optional.ofNullable(lastRequest.getAppointmentTime());
-            long waitingTimeInSeconds = appointmentDateTime
-                    .map(appointment -> Duration.between(LocalDateTime.parse(appointment), LocalDateTime.now()).getSeconds())
-                    .orElse(0L);
-            request.setEstimatedTime(String.valueOf(Duration.ofSeconds(waitingTimeInSeconds)));
-            if (queue.getRequests() == null) {
-                queue.setRequests(new ArrayList<>());
-            }
-            queue.getRequests().add(request);
-            queueRepository.save(queue);
-            return mapper.convertValue(request, RequestDTORequest.class);
+        if (clientDTO.getClientPriority() == ClientPriority.PRIORITY) {
+            // Если у клиента приоритетный статус то мы его сразу обслуживаем
+            request.setRequestType(RequestType.DONE);
+            request.setAppointmentTime(LocalDateTime.now().toString());
+            request.setWaitingTime(String.valueOf(Duration.ZERO));
+            queue.setCurrentRequest(request);
         } else {
-            RequestDTORequest request = requestService.createRequest(clientDTORequest, requestType, appointmentTime);
-            if (queue.getRequests() == null) {
-                queue.setRequests(new ArrayList<>());
+            List<Request> requests = queue.getRequests().stream()
+                    .filter(r -> r.getClient().equals(client))
+                    .collect(Collectors.toList());
+
+            if (!requests.isEmpty()) {
+                Request lastRequest = requests.get(requests.size() - 1);
+                recalculateEstimatedTime(client);
+                Optional<String> appointmentDateTime = Optional.ofNullable(lastRequest.getAppointmentTime());
+                long waitingTimeInSeconds = appointmentDateTime
+                        .map(appointment -> Duration.between(LocalDateTime.parse(appointment), LocalDateTime.now()).getSeconds())
+                        .orElse(0L);
+                request.setEstimatedTime(String.valueOf(Duration.ofSeconds(waitingTimeInSeconds)));
+                queue.getRequests().add(request);
+            } else {
+                queue.getRequests().add(request);
+                queue.setNextQueueNumber(queue.getNextQueueNumber() + 1);
             }
-            queue.getRequests().add(request);
-            queue.setNextQueueNumber(queue.getNextQueueNumber() + 1);
-            queueRepository.save(queue);
-            return mapper.convertValue(request, RequestDTORequest.class);
         }
+
+        queueRepository.save(queue);
+        return mapper.convertValue(request, RequestDTO.class);
     }
 
     @Override
-    public RequestDTORequest getCurrentRequest() {
+    public RequestDTO getCurrentRequest() {
         Queue queue = getOrCreateQueue();
         Request currentRequest = queue.getCurrentRequest();
         if (currentRequest == null && !queue.getRequests().isEmpty()) {
@@ -90,7 +80,7 @@ public class QueueServiceImpl implements QueueService {
             queueRepository.save(queue);
         }
 
-        return mapper.convertValue(currentRequest, RequestDTORequest.class);
+        return mapper.convertValue(currentRequest, RequestDTO.class);
     }
 
     @Override
@@ -161,17 +151,14 @@ public class QueueServiceImpl implements QueueService {
         return new ArrayList<>(queue.keySet());
     }
 
-    public Queue getOrCreateQueue() { //ищем очередь в репозитории
-        Optional<Queue> optionalQueue = queueRepository.findTopByOrderByIdDesc();
-
-        if (optionalQueue.isPresent()) {
-            Queue queue = optionalQueue.get();
-            if (queue.getCurrentRequest() == null) { //если нет текущего Request в нашей очереди вернем ее
-                return queue;
+    public Queue getOrCreateQueue() {
+        if (queueRepository != null) {
+            List<Queue> queues = queueRepository.findAll();
+            if (!queues.isEmpty()) {
+                return queues.get(queues.size() - 1);
             }
         }
-
-        Queue newQueue = new Queue(); // иначе создадим новую очередь
+        Queue newQueue = new Queue();
         newQueue.setNextQueueNumber(1);
         newQueue.setPriorityClient(false);
         return queueRepository.save(newQueue);

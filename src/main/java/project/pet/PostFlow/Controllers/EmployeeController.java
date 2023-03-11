@@ -1,9 +1,10 @@
 package project.pet.PostFlow.Controllers;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import project.pet.PostFlow.CustomException.ResourceNotFoundException;
-import project.pet.PostFlow.Model.DTO.EmployeeDTORequest;
+import project.pet.PostFlow.Model.DTO.EmployeeDTO;
 import project.pet.PostFlow.Model.Entity.Employee;
 import project.pet.PostFlow.Services.Service.EmployeeService;
 
@@ -14,12 +15,9 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/employees")
+@RequiredArgsConstructor
 public class EmployeeController {
-    private EmployeeService employeeService;
-
-    public EmployeeController(EmployeeService employeeService) {
-        this.employeeService = employeeService;
-    }
+    private final EmployeeService employeeService;
 
     @GetMapping("")
     public List<Employee> getAllEmployees() {
@@ -33,13 +31,13 @@ public class EmployeeController {
     }
 
     @PostMapping("")
-    public ResponseEntity<EmployeeDTORequest> createEmployee(@RequestBody EmployeeDTORequest employeeDTORequest) {
-        return ResponseEntity.ok(employeeService.createEmployee(employeeDTORequest));
+    public ResponseEntity<EmployeeDTO> createEmployee(@RequestBody EmployeeDTO employeeDTO) {
+        return ResponseEntity.ok(employeeService.createEmployee(employeeDTO));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EmployeeDTORequest> updateEmployee(@PathVariable(value = "id") Long employeeId, @Valid @RequestBody EmployeeDTORequest employeeDTORequest) throws ResourceNotFoundException {
-        return ResponseEntity.ok(employeeService.updateEmployee(employeeId, employeeDTORequest));
+    public ResponseEntity<EmployeeDTO> updateEmployee(@PathVariable(value = "id") Long employeeId, @Valid @RequestBody EmployeeDTO employeeDTO) throws ResourceNotFoundException {
+        return ResponseEntity.ok(employeeService.updateEmployee(employeeId, employeeDTO));
     }
 
     @DeleteMapping("/{id}")

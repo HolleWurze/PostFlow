@@ -4,18 +4,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import project.pet.PostFlow.Enum.ClientPriority;
 import project.pet.PostFlow.Enum.RequestType;
-import project.pet.PostFlow.Model.DTO.ClientDTORequest;
-import project.pet.PostFlow.Model.DTO.RequestDTORequest;
+import project.pet.PostFlow.Model.DTO.ClientDTO;
+import project.pet.PostFlow.Model.DTO.RequestDTO;
 import project.pet.PostFlow.Model.Entity.Client;
 import project.pet.PostFlow.Model.Entity.Request;
 import project.pet.PostFlow.Model.Repository.ClientRepository;
 import project.pet.PostFlow.Model.Repository.RequestRepository;
 import project.pet.PostFlow.Services.Service.RequestService;
 
+import javax.persistence.EntityNotFoundException;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
@@ -27,21 +28,21 @@ public class RequestServiceImpl implements RequestService {
     private final RequestRepository requestRepository;
 
     private final ClientRepository clientRepository;
-//    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
     private final ObjectMapper mapper;
 
 
     @Override
-    public RequestDTORequest createRequest(ClientDTORequest clientDTORequest, RequestType requestType, String appointmentTime) {
+    public RequestDTO createRequest(ClientDTO clientDTO, RequestType requestType, String appointmentTime) {
         Client client = new Client();
-        client.setId(clientDTORequest.getId());
-        client.setFirstName(clientDTORequest.getFirstName());
-        client.setLastName(clientDTORequest.getLastName());
-        client.setClientPriority(clientDTORequest.getClientPriority());
+        client.setId(clientDTO.getId());
+        client.setFirstName(clientDTO.getFirstName());
+        client.setLastName(clientDTO.getLastName());
+        client.setClientPriority(clientDTO.getClientPriority());
         Client savedClient = clientRepository.save(client);
         Request request = new Request(savedClient, requestType, appointmentTime);
-        if (clientDTORequest.getClientPriority() == ClientPriority.PRIORITY) {
+        if (clientDTO.getClientPriority() == ClientPriority.PRIORITY) {
             request.setWaitingTime(String.valueOf(Duration.ZERO));
         } else {
             String estimatedTime = calculateEstimatedTime(request);
@@ -49,7 +50,7 @@ public class RequestServiceImpl implements RequestService {
             request.setWaitingTime(getTotalWaitingTime(request.getClient()));
         }
 
-        return mapper.convertValue(requestRepository.save(request), RequestDTORequest.class);
+        return mapper.convertValue(requestRepository.save(request), RequestDTO.class);
     }
 
     private String getTotalWaitingTime(Client client) {
@@ -80,8 +81,10 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public RequestDTORequest getRequestById(Long id) {
-        return mapper.convertValue(requestRepository.findById(id).orElse(null),RequestDTORequest.class);
+    public RequestDTO getRequestById(Long id) {
+        Request request = requestRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Запрос с таким ID не найден " + id));
+        return modelMapper.map(request, RequestDTO.class);
     }
 
     @Override
@@ -90,18 +93,18 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public RequestDTORequest updateRequest(RequestDTORequest requestDTORequest) {     //компилятор требует добавить в реквест @NotNUll, но реквест создается при создании запроса Client?
-        Request existingRequest = requestRepository.findById(requestDTORequest.getId())
+    public RequestDTO updateRequest(RequestDTO requestDTO) {     //компилятор требует добавить в реквест @NotNUll, но реквест создается при создании запроса Client?
+        Request existingRequest = requestRepository.findById(requestDTO.getId())
                 .orElse(null);
 
         if (existingRequest != null) {
-            existingRequest.setDepartment(requestDTORequest.getDepartment());
-            existingRequest.setParcel(requestDTORequest.getParcel());
-            existingRequest.setWaitingTime(requestDTORequest.getWaitingTime());
-            existingRequest.setEstimatedTime(requestDTORequest.getEstimatedTime());
-            existingRequest.setRequestType(requestDTORequest.getRequestType());
+            existingRequest.setDepartment(requestDTO.getDepartment());
+            existingRequest.setParcel(requestDTO.getParcel());
+            existingRequest.setWaitingTime(requestDTO.getWaitingTime());
+            existingRequest.setEstimatedTime(requestDTO.getEstimatedTime());
+            existingRequest.setRequestType(requestDTO.getRequestType());
 
-            return mapper.convertValue(requestRepository.save(existingRequest), RequestDTORequest.class);
+            return mapper.convertValue(requestRepository.save(existingRequest), RequestDTO.class);
         }
         return null;
     }

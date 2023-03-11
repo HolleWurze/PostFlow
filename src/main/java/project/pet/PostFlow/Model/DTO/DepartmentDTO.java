@@ -11,7 +11,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class DepartmentDTORequest {
+public class DepartmentDTO {
     Long id;
     String name;
     String address;
