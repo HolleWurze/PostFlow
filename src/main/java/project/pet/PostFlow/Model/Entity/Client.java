@@ -32,16 +32,16 @@ public class Client {
     Long id;
 
     @Column(name = "first_name")
-    private String firstName;
+    String firstName;
 
     @Column(name = "last_name")
-    private String lastName;
+    String lastName;
 
     @Column(name = "client_priority")
-    private ClientPriority clientPriority;
+    ClientPriority clientPriority;
 
     @CreationTimestamp
-    @Column(name = "created_date")
+    @Column(name = "created_date", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", updatable = false)
     LocalDateTime createdAt;
 
     @Column(name = "updated_date")
@@ -55,12 +55,11 @@ public class Client {
 
     @ManyToOne
     @JoinColumn(name = "department_id")
-    private Department department;
+    Department department;
 
     @OneToMany
     List<Parcel> parcels;
 
-    @OneToMany // каскадное нам впринципе не нужно так как клиента мы не удалим из базы?
-    private List<Request> requests;
-
+    @OneToMany
+    List<Request> requests;
 }

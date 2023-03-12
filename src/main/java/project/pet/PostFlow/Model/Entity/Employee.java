@@ -23,21 +23,21 @@ import lombok.experimental.FieldDefaults;
 public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
     @Column(name = "first_name")
-    private String firstName;
+    String firstName;
 
     @Column(name = "last_name")
-    private String lastName;
+    String lastName;
 
     @ManyToOne
     @JoinColumn(name = "department_id")
-    private Department department;
+    Department department;
 
     @OneToMany
-    private List<Request> requests;
+    List<Request> requests;
 
     @OneToMany
-    private List<Parcel> parcel;
+    List<Parcel> parcel;
 }

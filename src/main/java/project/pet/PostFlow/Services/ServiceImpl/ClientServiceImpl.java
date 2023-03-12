@@ -48,12 +48,12 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public ClientDTO updateClient(ClientDTO clientDTORequest) {
-        Client existingClient = clientRepository.findById(clientDTORequest.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Клиент с таким ID не найден " + clientDTORequest.getId()));
-        existingClient.setFirstName(clientDTORequest.getFirstName());
-        existingClient.setLastName(clientDTORequest.getLastName());
-        existingClient.setDepartment(clientDTORequest.getDepartment());
+    public ClientDTO updateClient(ClientDTO clientDTO) {
+        Client existingClient = clientRepository.findById(clientDTO.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Клиент с таким ID не найден " + clientDTO.getId()));
+        existingClient.setFirstName(clientDTO.getFirstName());
+        existingClient.setLastName(clientDTO.getLastName());
+        existingClient.setDepartment(clientDTO.getDepartment());
 
         return mapper.convertValue(clientRepository.save(existingClient), ClientDTO.class);
     }

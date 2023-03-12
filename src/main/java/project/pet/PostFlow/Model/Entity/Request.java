@@ -22,22 +22,22 @@ import java.time.LocalDateTime;
 public class Request {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
     @Enumerated(EnumType.STRING)
     RequestType requestType;
-    private String appointmentTime;
+    String appointmentTime;
 
-    private String waitingTime;
+    String waitingTime;
 
-    private String estimatedTime;
+    String estimatedTime;
     @ManyToOne
-    private Department department;
-
-    @ManyToOne
-    private Parcel parcel;
+    Department department;
 
     @ManyToOne
-    private Client client;
+    Parcel parcel;
+
+    @ManyToOne
+    Client client;
 
     public Request(Client client, RequestType requestType, String appointmentTime) {
         this.client = client;

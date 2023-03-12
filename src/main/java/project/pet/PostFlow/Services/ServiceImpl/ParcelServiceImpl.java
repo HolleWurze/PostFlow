@@ -35,27 +35,25 @@ public class ParcelServiceImpl implements ParcelService {
 
     @Override
     public ParcelDTO createParcel(ParcelDTO parcelDTO) {
-        log.info("ParcelDTO received: {}", parcelDTO);
+
         if (parcelRepository.existsById(parcelDTO.getId())) {
             throw new AlreadyExistsException("Посылка с таким ID уже существует ", HttpStatus.BAD_REQUEST);
         }
-        log.debug("ParcelDTO fields: id={}, client={}, department={}, weight={}, status={}, trackingNumber={}, description={}",
-                parcelDTO.getId(),
-                parcelDTO.getClient(),
-                parcelDTO.getDepartment(),
-                parcelDTO.getWeight(),
-                parcelDTO.getStatus(),
-                parcelDTO.getTrackingNumber(),
-                parcelDTO.getDescription());
-        Parcel parcel = mapper.convertValue(parcelDTO, Parcel.class);
 
-//        if (parcel == null) {
-//            throw new IllegalArgumentException("Non converted to DTO");
-//        }
+        Parcel parcel = mapper.convertValue(parcelDTO, Parcel.class);
 
         Parcel savedParcel = parcelRepository.save(parcel);
         return mapper.convertValue(savedParcel, ParcelDTO.class);
     }
+//    log.info("ParcelDTO received: {}", parcelDTO);
+    //        log.debug("ParcelDTO fields: id={}, client={}, department={}, weight={}, status={}, trackingNumber={}, description={}",
+//                parcelDTO.getId(),
+//                parcelDTO.getClient(),
+//                parcelDTO.getDepartment(),
+//                parcelDTO.getWeight(),
+//                parcelDTO.getStatus(),
+//                parcelDTO.getTrackingNumber(),
+//                parcelDTO.getDescription());
 
     @Override
     public ParcelDTO updateParcel(Long id, ParcelDTO parcelDTO) {

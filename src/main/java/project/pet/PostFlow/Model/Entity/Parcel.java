@@ -16,15 +16,15 @@ import javax.persistence.*;
 public class Parcel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
     @ManyToOne
     @JoinColumn(name = "client_id")
-    private Client client;
+    Client client;
 
     @ManyToOne
     @JoinColumn(name = "department_id")
-    private Department department;
+    Department department;
 
     String trackingNumber;
 

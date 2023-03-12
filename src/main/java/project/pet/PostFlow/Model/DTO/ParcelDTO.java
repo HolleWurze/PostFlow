@@ -14,9 +14,9 @@ public class ParcelDTO {
     Long id;
     Client client;
     Department department;
-    Double weight;
-    Status status;
     String trackingNumber;
     String description;
+    Double weight;
+    Status status;
 }
 

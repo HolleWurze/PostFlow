@@ -21,23 +21,23 @@ import lombok.experimental.FieldDefaults;
 public class Department {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
     @Column(name = "name")
-    private String name;
+    String name;
 
     @Column(name = "address")
-    private String address;
+    String address;
 
     @OneToMany
-    private List<Employee> employees;
+    List<Employee> employees;
 
     @OneToMany
-    private List<Client> clients;
+    List<Client> clients;
 
     @OneToMany
-    private List<Parcel> parcels;
+    List<Parcel> parcels;
 
     @OneToMany
-    private List<Request> requests;
+    List<Request> requests;
 }

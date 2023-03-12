@@ -12,6 +12,7 @@ import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import project.pet.PostFlow.Enum.Status;
+import project.pet.PostFlow.Model.DTO.ClientDTO;
 import project.pet.PostFlow.Model.DTO.ParcelDTO;
 import project.pet.PostFlow.Model.Entity.Client;
 import project.pet.PostFlow.Model.Entity.Department;
@@ -76,14 +77,30 @@ public class ParcelServiceImplTest {
 
     @Test
     public void testCreateParcel() {
-        ParcelDTO parcelDTO = createTestParcelDTO();
+        ParcelDTO parcelDTO = new ParcelDTO();
+        parcelDTO.setId(1L);
+        parcelDTO.setStatus(Status.DELIVERED);
+        parcelDTO.setWeight(5.0);
+        Department department = new Department();
+        department.setName("Невский");
+        Client client = new Client();
+        client.setFirstName("Вася");
+        client.setLastName("Пупкин");
+        parcelDTO.setDepartment(department);
+        parcelDTO.setClient(client);
 
-        when(parcelRepository.existsById(anyLong())).thenReturn(false);
-        when(parcelRepository.save(any())).thenReturn(new Parcel()); // return a non-null Parcel instance
+        when(parcelRepository.findById(parcelDTO.getId())).thenReturn(Optional.empty());
+        when(parcelRepository.save(any(Parcel.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        ParcelDTO result = parcelService.createParcel(parcelDTO);
+        ParcelDTO createdParcelDTO = parcelService.createParcel(parcelDTO);
 
-        assertNotNull(result, "Result is null");
+        assertEquals(parcelDTO.getId(), createdParcelDTO.getId());
+        assertEquals(parcelDTO.getClient().getFirstName(), createdParcelDTO.getClient().getFirstName());
+        assertEquals(parcelDTO.getDepartment().getName(), createdParcelDTO.getDepartment().getName());
+
+        verify(parcelRepository, times(1)).findById(parcelDTO.getId());
+
+        verify(parcelRepository, times(1)).save(any(Parcel.class));
     }
 
     @Test

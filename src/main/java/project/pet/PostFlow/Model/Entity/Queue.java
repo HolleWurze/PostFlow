@@ -21,19 +21,17 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 @Table(name = "queue")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Queue {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
-    private Boolean priorityClient;
+    Boolean priorityClient;
 
-    private Integer nextQueueNumber;
+    Integer nextQueueNumber;
 
     @OneToOne(cascade = CascadeType.ALL)
-    private Request currentRequest;
+    Request currentRequest;
 
     @OneToMany
-    private List<Request> requests;
-
+    List<Request> requests;
 }
