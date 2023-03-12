@@ -29,7 +29,7 @@ public class QueueServiceImpl implements QueueService {
     private final QueueRepository queueRepository;
     private final int averageWaitingTimeInMinutes = 10;
 
-    private final ModelMapper modelMapper;
+   // private final ModelMapper modelMapper;
 
     private final ObjectMapper mapper;
 
@@ -52,7 +52,7 @@ public class QueueServiceImpl implements QueueService {
     @Override
     public RequestDTO addRequest(ClientDTO clientDTO, RequestType requestType, String appointmentTime) {
         Queue queue = getOrCreateQueue();
-        Client client = modelMapper.map(clientDTO, Client.class);
+        Client client = mapper.convertValue(clientDTO, Client.class);
         Request request = new Request(client, requestType, appointmentTime);
 
         if (clientDTO.getClientPriority() == ClientPriority.PRIORITY) {

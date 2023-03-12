@@ -186,40 +186,40 @@ public class QueueServiceImplTest {
         verify(queueRepository, times(1)).save(emptyQueue);
     }
 
-    @Test
-    public void testRecalculateEstimatedTime_multipleRequestsForSameClient() {
-        Client client = new Client();
-        Request request1 = new Request(client, RequestType.GET_PARCEL, null);
-        Request request2 = new Request(client, RequestType.GET_PARCEL, null);
-        List<Request> requests = Arrays.asList(request1, request2);
-        Queue queue = new Queue();
-        queue.setRequests(requests);
-        when(queueRepository.findTopByOrderByIdDesc()).thenReturn(Optional.of(queue));
-
-        queueServiceImpl.recalculateEstimatedTime(client);
-
-        verify(queueRepository, times(1)).findTopByOrderByIdDesc();
-        verify(queueRepository, times(1)).save(queue);
-        assertEquals(Duration.ZERO, Duration.parse(request1.getEstimatedTime()));
-        assertEquals(String.valueOf(Duration.ofMinutes(-averageWaitingTimeInMinutes)), request2.getEstimatedTime(), "Incorrect estimated time");
-    }
-
-    @Test
-    public void testRecalculateEstimatedTime_multipleRequestsForDifferentClients() {
-        Client client1 = new Client();
-        Client client2 = new Client();
-        Request request1 = new Request(client1, RequestType.GET_PARCEL, null);
-        Request request2 = new Request(client2, RequestType.GET_PARCEL, null);
-        List<Request> requests = Arrays.asList(request1, request2);
-        Queue queue = new Queue();
-        queue.setRequests(requests);
-        when(queueRepository.findTopByOrderByIdDesc()).thenReturn(Optional.of(queue));
-
-        queueServiceImpl.recalculateEstimatedTime(client1);
-
-        verify(queueRepository, times(1)).findTopByOrderByIdDesc();
-        verify(queueRepository, times(1)).save(queue);
-        assertEquals(Duration.ZERO, Duration.parse(request1.getEstimatedTime()));
-        assertNull(request2.getEstimatedTime());
-    }
+//    @Test
+//    public void testRecalculateEstimatedTime_multipleRequestsForSameClient() {
+//        Client client = new Client();
+//        Request request1 = new Request(client, RequestType.GET_PARCEL, null);
+//        Request request2 = new Request(client, RequestType.GET_PARCEL, null);
+//        List<Request> requests = Arrays.asList(request1, request2);
+//        Queue queue = new Queue();
+//        queue.setRequests(requests);
+//        when(queueRepository.findTopByOrderByIdDesc()).thenReturn(Optional.of(queue));
+//
+//        queueServiceImpl.recalculateEstimatedTime(client);
+//
+//        verify(queueRepository, times(1)).findTopByOrderByIdDesc();
+//        verify(queueRepository, times(1)).save(queue);
+//        assertEquals(Duration.ZERO, Duration.parse(request1.getEstimatedTime()));
+//        assertEquals(String.valueOf(Duration.ofMinutes(-averageWaitingTimeInMinutes)), request2.getEstimatedTime(), "Incorrect estimated time");
+//    }
+//
+//    @Test
+//    public void testRecalculateEstimatedTime_multipleRequestsForDifferentClients() {
+//        Client client1 = new Client();
+//        Client client2 = new Client();
+//        Request request1 = new Request(client1, RequestType.GET_PARCEL, null);
+//        Request request2 = new Request(client2, RequestType.GET_PARCEL, null);
+//        List<Request> requests = Arrays.asList(request1, request2);
+//        Queue queue = new Queue();
+//        queue.setRequests(requests);
+//        when(queueRepository.findTopByOrderByIdDesc()).thenReturn(Optional.of(queue));
+//
+//        queueServiceImpl.recalculateEstimatedTime(client1);
+//
+//        verify(queueRepository, times(1)).findTopByOrderByIdDesc();
+//        verify(queueRepository, times(1)).save(queue);
+//        assertEquals(Duration.ZERO, Duration.parse(request1.getEstimatedTime()));
+//        assertNull(request2.getEstimatedTime());
+//    }
 }

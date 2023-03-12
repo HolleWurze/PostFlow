@@ -35,23 +35,11 @@ public class ParcelServiceImpl implements ParcelService {
 
     @Override
     public ParcelDTO createParcel(ParcelDTO parcelDTO) {
-        log.info("ParcelDTO received: {}", parcelDTO);
-        if (parcelRepository.existsById(parcelDTO.getId())) {
-            throw new AlreadyExistsException("Посылка с таким ID уже существует ", HttpStatus.BAD_REQUEST);
-        }
-        log.debug("ParcelDTO fields: id={}, client={}, department={}, weight={}, status={}, trackingNumber={}, description={}",
-                parcelDTO.getId(),
-                parcelDTO.getClient(),
-                parcelDTO.getDepartment(),
-                parcelDTO.getWeight(),
-                parcelDTO.getStatus(),
-                parcelDTO.getTrackingNumber(),
-                parcelDTO.getDescription());
-        Parcel parcel = mapper.convertValue(parcelDTO, Parcel.class);
+        parcelRepository.findById(parcelDTO.getId()).ifPresent(c -> {
+            throw new AlreadyExistsException("Клиент с таким ID уже существует ", HttpStatus.BAD_REQUEST);
+        });
 
-//        if (parcel == null) {
-//            throw new IllegalArgumentException("Non converted to DTO");
-//        }
+        Parcel parcel = mapper.convertValue(parcelDTO, Parcel.class);
 
         Parcel savedParcel = parcelRepository.save(parcel);
         return mapper.convertValue(savedParcel, ParcelDTO.class);

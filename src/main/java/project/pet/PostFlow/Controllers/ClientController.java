@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import project.pet.PostFlow.CustomException.ResourceNotFoundException;
 import project.pet.PostFlow.Model.DTO.ClientDTO;;
 import project.pet.PostFlow.Model.Entity.Client;
+import project.pet.PostFlow.Model.Repository.ClientRepository;
 import project.pet.PostFlow.Services.Service.ClientService;
 
 import java.util.HashMap;
