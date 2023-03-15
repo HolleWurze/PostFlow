@@ -1,24 +1,18 @@
 package project.pet.PostFlow;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.checkerframework.checker.units.qual.C;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
-import project.pet.PostFlow.Enum.Status;
-import project.pet.PostFlow.Model.DTO.ParcelDTO;
-import project.pet.PostFlow.Model.Entity.Client;
-import project.pet.PostFlow.Model.Entity.Department;
-import project.pet.PostFlow.Model.Entity.Parcel;
-import project.pet.PostFlow.Model.Repository.ParcelRepository;
-import project.pet.PostFlow.Services.Service.ParcelService;
-import project.pet.PostFlow.Services.ServiceImpl.ParcelServiceImpl;
+import project.pet.PostFlow.enums.Status;
+import project.pet.PostFlow.model.dto.ParcelDTO;
+import project.pet.PostFlow.model.entity.Client;
+import project.pet.PostFlow.model.entity.Department;
+import project.pet.PostFlow.model.entity.Parcel;
+import project.pet.PostFlow.model.repository.ParcelRepository;
+import project.pet.PostFlow.services.serviceImpl.ParcelServiceImpl;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,13 +23,10 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ParcelServiceImplTest {
-
     @Mock
     ObjectMapper mapper;
-
     @Mock
     ParcelRepository parcelRepository;
-
     @InjectMocks
     ParcelServiceImpl parcelService;
 

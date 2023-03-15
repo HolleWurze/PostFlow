@@ -7,15 +7,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
-import project.pet.PostFlow.Model.Entity.Department;
-import project.pet.PostFlow.Model.Entity.Employee;
-import project.pet.PostFlow.Model.Entity.Parcel;
-import project.pet.PostFlow.Model.DTO.DepartmentDTO;
-import project.pet.PostFlow.Model.Repository.DepartmentRepository;
-import project.pet.PostFlow.Model.Repository.EmployeeRepository;
-import project.pet.PostFlow.Model.Repository.ParcelRepository;
+import project.pet.PostFlow.model.entity.Department;
+import project.pet.PostFlow.model.entity.Employee;
+import project.pet.PostFlow.model.entity.Parcel;
+import project.pet.PostFlow.model.dto.DepartmentDTO;
+import project.pet.PostFlow.model.repository.DepartmentRepository;
+import project.pet.PostFlow.model.repository.EmployeeRepository;
+import project.pet.PostFlow.model.repository.ParcelRepository;
 
-import project.pet.PostFlow.Services.ServiceImpl.DepartmentServiceImpl;
+import project.pet.PostFlow.services.serviceImpl.DepartmentServiceImpl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,18 +28,14 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DepartmentServiceImplTest {
-
     @Spy
     private ObjectMapper mapper;
     @Mock
     private DepartmentRepository departmentRepository;
-
     @Mock
     private EmployeeRepository employeeRepository;
-
     @Mock
     private ParcelRepository parcelRepository;
-
     @InjectMocks
     private DepartmentServiceImpl departmentService;
 

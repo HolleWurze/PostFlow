@@ -6,15 +6,15 @@ import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.modelmapper.ModelMapper;
-import project.pet.PostFlow.Enum.ClientPriority;
-import project.pet.PostFlow.Enum.RequestType;
-import project.pet.PostFlow.Model.DTO.ClientDTO;
-import project.pet.PostFlow.Model.DTO.RequestDTO;
-import project.pet.PostFlow.Model.Entity.*;
-import project.pet.PostFlow.Model.Repository.ClientRepository;
-import project.pet.PostFlow.Model.Repository.RequestRepository;
-import project.pet.PostFlow.Services.Service.RequestService;
-import project.pet.PostFlow.Services.ServiceImpl.RequestServiceImpl;
+import project.pet.PostFlow.enums.ClientPriority;
+import project.pet.PostFlow.enums.RequestType;
+import project.pet.PostFlow.model.dto.ClientDTO;
+import project.pet.PostFlow.model.dto.RequestDTO;
+import project.pet.PostFlow.model.entity.*;
+import project.pet.PostFlow.model.repository.ClientRepository;
+import project.pet.PostFlow.model.repository.RequestRepository;
+import project.pet.PostFlow.services.service.RequestService;
+import project.pet.PostFlow.services.serviceImpl.RequestServiceImpl;
 
 
 import java.util.Arrays;
@@ -27,20 +27,17 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class RequestServiceImplTest {
     @Mock
-    private  RequestRepository requestRepository;
-
+    private RequestRepository requestRepository;
     @Mock
     private ClientRepository clientRepository;
-
     @Mock
     private RequestService requestService;
     @Spy
     private ModelMapper modelMapper;
     @Spy
-    private  ObjectMapper mapper;
+    private ObjectMapper mapper;
     @InjectMocks
     RequestServiceImpl requestServiceImpl;
-
 
     @Test
     public void testDeleteRequestsByDepartmentId() {

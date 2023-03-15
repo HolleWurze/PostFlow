@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Регистрация клиента</title>
+    <style>
+        body {
+            background: linear-gradient(to bottom right, #f5f5f5, #bdc4c2);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+    <style>
+        .btn {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #115ca7;
+            border-radius: 5px;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .btn:hover {
+            background-color: #115ca7;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+<h1>Регистрация клиента</h1>
+<form id="add-client-form">
+    <label for="firstName">Имя:</label>
+    <input type="text" id="firstName" name="firstName" required><br>
+    <label for="lastName">Фамилия:</label>
+    <input type="text" id="lastName" name="lastName" required><br>
+
+    <label for="userName">Имя пользователя:</label>
+    <input type="text" id="userName" name="userName" required><br>
+
+    <label for="password">Пароль:</label>
+    <input type="password" id="password" name="password" required><br>
+
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required><br>
+
+    <label for="department">Отделение:</label>
+    <select id="department" name="department" required>
+        <option value="Санкт-Петербург, ул. Ленина, д. 1">Санкт-Петербург, ул. Ленина, д. 1</option>
+        <option value="Санкт-Петербург, пр. Ветеранов, д. 2">Санкт-Петербург, пр. Ветеранов, д. 2</option>
+        <option value="Старо-Санкт-Петербург, ул. Московская, д. 3">Санкт-Петербург, ул. Московская, д. 3</option>
+        <option value="Санкт-Петербург, пр. Красного Курсанта, д. 4">Санкт-Петербург, пр. Красного Курсанта, д. 4
+        </option>
+        <option value="Санкт-Петербург, ул. Пионерская, д. 5">Санкт-Петербург, ул. Пионерская, д. 5</option>
+        <option value="Санкт-Петербург, ул. Красная, д. 6">Санкт-Петербург, ул. Красная, д. 6</option>
+        <option value="Санкт-Петербург, пр. Энгельса, д. 7">Санкт-Петербург, пр. Энгельса, д. 7</option>
+        <option value="Санкт-Петербург, ул. Марата, д. 8">Санкт-Петербург, ул. Марата, д. 8</option>
+        <option value="Санкт-Петербург, наб. реки Мойки, д. 9">Санкт-Петербург, наб. реки Мойки, д. 9</option>
+        <option value="Санкт-Петербург, ул. Тверская, д. 10">Санкт-Петербург, ул. Тверская, д. 10</option>
+    </select><br>
+
+    <button type="submit" class="btn">Зарегистрироваться</button>
+    <button type="back" class="btn" onclick="history.back()">Назад</button>
+
+</form>
+<script>
+    const form = document.getElementById("add-client-form");
+    form.addEventListener("submit", event => {
+        event.preventDefault();
+        addClient();
+    });
+
+    function addClient() {
+        const firstName = document.getElementById("first-name").value;
+        const lastName = document.getElementById("last-name").value;
+        const userName = document.getElementById("userName").value;
+        const password = document.getElementById("password").value;
+        const email = document.getElementById("email").value;
+        const department = document.getElementById("department").value;
+
+        const data = {
+            firstName: firstName,
+            lastName: lastName,
+            userName: userName,
+            password: password,
+            email: email,
+            department: department
+        };
+
+        fetch("/register/create", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => {
+                if (response.ok) {
+                    // клиент успешно зарегистрирован
+                    registrationSuccess();
+                } else {
+                    console.error("Ошибка при регистрации клиента: ", response.status);
+                }
+            })
+            .catch(error => {
+                console.error("Ошибка при регистрации клиента: ", error);
+                alert("Произошла ошибка при регистрации клиента");
+            });
+    }
+
+    function registrationSuccess() {
+        alert("Регистрация прошла успешно!");
+        window.location.href = "login.html";
+    }
+</script>
+</body>
+</html>

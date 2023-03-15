@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Выберите действие</title>
+    <style>
+        body {
+            background: linear-gradient(to bottom right, #f5f5f5, #bdc4c2);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            display: inline-block;
+            margin: 10px;
+        }
+
+        a {
+            display: inline-block;
+            padding: 10px;
+            background-color: #115ca7;
+            border-radius: 5px;
+            text-decoration: none;
+            color: #fff;
+        }
+
+        a:hover {
+            background-color: #054989;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+<h1>Выберите действие</h1>
+<div id="queue-info" style="display:none;">
+    <p>Вы находитесь в очереди.</p>
+    <button id="return-to-queue-btn">Вернуться в очередь</button>
+</div>
+<ul>
+    <li><a href="/requests/create_request?requestType=GET_PARCEL">Получить посылку</a></li>
+    <li><a href="/requests/create_request?requestType=SEND_PARCEL">Отправить посылку</a></li>
+</ul>
+
+<script>
+    const links = document.querySelectorAll('a');
+    links.forEach(link => {
+        link.addEventListener('click', event => {
+            event.preventDefault();
+            const url = link.getAttribute('href');
+            const requestType = url.split('=')[1];
+            const queueUrl = `/requests/queue?requestType=${requestType}`;
+            fetch(queueUrl)
+                .then(response => {
+                    if (response.ok) {
+                        window.location.href = "waitingPage.html";
+                    } else if (response.status === 409) {
+                        // клиент уже находится в очереди
+                        document.getElementById('queue-info').style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка при добавлении клиента в очередь: ', error);
+                });
+        });
+    });
+
+    const returnToQueueBtn = document.getElementById('return-to-queue-btn');
+    if (returnToQueueBtn) {
+        returnToQueueBtn.addEventListener('click', event => {
+            event.preventDefault();
+            fetch('/requests/delete_from_queue', {method: 'DELETE'})
+                .then(response => {
+                    if (response.ok) {
+                        window.location.href = "waitingPage.html";
+                    } else {
+                        console.error('Ошибка при удалении клиента из очереди: ', response.status);
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка при удалении клиента из очереди: ', error);
+                });
+        });
+    }
+</script>
+</body>
+</html>

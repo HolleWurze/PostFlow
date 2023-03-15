@@ -5,10 +5,6 @@ spring:
   thymeleaf:
     prefix: classpath:/templates/
     enabled: true
-  security:
-    user:
-      name: user
-      password: user
   jpa:
     database: postgresql
     show-sql: false
@@ -18,8 +14,6 @@ spring:
       ddl-auto: update
     properties:
       hibernate:
-        #              hbm2dll:
-        #                  create_namespaces: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
         jdbc:
           lob:
@@ -30,9 +24,3 @@ spring:
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
-
-#    logging:
-#      level:
-#        root: DEBUG
-#      console:
-#        enabled: true

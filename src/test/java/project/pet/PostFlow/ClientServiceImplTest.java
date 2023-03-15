@@ -1,7 +1,6 @@
 package project.pet.PostFlow;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -9,13 +8,13 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
-import project.pet.PostFlow.Enum.CRUDStatus;
-import project.pet.PostFlow.Model.DTO.ClientDTO;
-import project.pet.PostFlow.Model.Entity.Client;
-import project.pet.PostFlow.Model.Entity.Department;
-import project.pet.PostFlow.Model.Repository.ClientRepository;
-import project.pet.PostFlow.Services.Service.ClientService;
-import project.pet.PostFlow.Services.ServiceImpl.ClientServiceImpl;
+import project.pet.PostFlow.enums.CRUDStatus;
+import project.pet.PostFlow.model.dto.ClientDTO;
+import project.pet.PostFlow.model.entity.Client;
+import project.pet.PostFlow.model.entity.Department;
+import project.pet.PostFlow.model.repository.ClientRepository;
+import project.pet.PostFlow.services.service.ClientService;
+import project.pet.PostFlow.services.serviceImpl.ClientServiceImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +29,6 @@ public class ClientServiceImplTest {
     private ObjectMapper mapper;
     @Mock
     private ClientRepository clientRepository;
-
     @InjectMocks
     private ClientServiceImpl clientService;
 

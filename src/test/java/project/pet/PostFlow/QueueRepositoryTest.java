@@ -5,9 +5,9 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import project.pet.PostFlow.Model.Entity.Queue;
-import project.pet.PostFlow.Model.Entity.Request;
-import project.pet.PostFlow.Model.Repository.QueueRepository;
+import project.pet.PostFlow.model.entity.Queue;
+import project.pet.PostFlow.model.entity.Request;
+import project.pet.PostFlow.model.repository.QueueRepository;
 
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
@@ -19,7 +19,6 @@ import static org.junit.Assert.*;
 public class QueueRepositoryTest {
     @Mock
     private EntityManager entityManager;
-
     @InjectMocks
     private QueueRepository queueRepository;
 

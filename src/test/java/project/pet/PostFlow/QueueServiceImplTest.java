@@ -6,16 +6,16 @@ import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.modelmapper.ModelMapper;
-import project.pet.PostFlow.Enum.ClientPriority;
-import project.pet.PostFlow.Enum.RequestType;
-import project.pet.PostFlow.Model.DTO.ClientDTO;
-import project.pet.PostFlow.Model.DTO.RequestDTO;
-import project.pet.PostFlow.Model.Entity.Client;
-import project.pet.PostFlow.Model.Entity.Queue;
-import project.pet.PostFlow.Model.Entity.Request;
-import project.pet.PostFlow.Model.Repository.QueueRepository;
-import project.pet.PostFlow.Services.Service.RequestService;
-import project.pet.PostFlow.Services.ServiceImpl.QueueServiceImpl;
+import project.pet.PostFlow.enums.ClientPriority;
+import project.pet.PostFlow.enums.RequestType;
+import project.pet.PostFlow.model.dto.ClientDTO;
+import project.pet.PostFlow.model.dto.RequestDTO;
+import project.pet.PostFlow.model.entity.Client;
+import project.pet.PostFlow.model.entity.Queue;
+import project.pet.PostFlow.model.entity.Request;
+import project.pet.PostFlow.model.repository.QueueRepository;
+import project.pet.PostFlow.services.service.RequestService;
+import project.pet.PostFlow.services.serviceImpl.QueueServiceImpl;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -26,20 +26,16 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QueueServiceImplTest {
-
     private Map<Client, Request> queue = new LinkedHashMap<>();
     @Mock
     private QueueRepository queueRepository;
     @Mock
     private RequestService requestService;
-
     private final int averageWaitingTimeInMinutes = 10;
-
     @Spy
     private ModelMapper modelMapper;
     @Spy
     private ObjectMapper mapper;
-
     @InjectMocks
     private QueueServiceImpl queueServiceImpl;
 
@@ -90,7 +86,7 @@ public class QueueServiceImplTest {
         when(queueRepository.save(any(Queue.class))).thenReturn(newQueue);
 
         Queue result = queueServiceImpl.getOrCreateQueue();
-        assertEquals(request.getWaitingTime(),result.getRequests().get(0).getWaitingTime());
+        assertEquals(request.getWaitingTime(), result.getRequests().get(0).getWaitingTime());
     }
 
     @Test

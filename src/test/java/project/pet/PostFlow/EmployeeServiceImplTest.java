@@ -5,12 +5,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
-import project.pet.PostFlow.Model.DTO.EmployeeDTO;
-import project.pet.PostFlow.Model.Entity.Department;
-import project.pet.PostFlow.Model.Entity.Employee;
-import project.pet.PostFlow.Model.Repository.DepartmentRepository;
-import project.pet.PostFlow.Model.Repository.EmployeeRepository;
-import project.pet.PostFlow.Services.ServiceImpl.EmployeeServiceImpl;
+import project.pet.PostFlow.model.dto.EmployeeDTO;
+import project.pet.PostFlow.model.entity.Department;
+import project.pet.PostFlow.model.entity.Employee;
+import project.pet.PostFlow.model.repository.DepartmentRepository;
+import project.pet.PostFlow.model.repository.EmployeeRepository;
+import project.pet.PostFlow.services.serviceImpl.EmployeeServiceImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,16 +22,12 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EmployeeServiceImplTest {
-
     @Spy
     private ObjectMapper mapper;
-
     @Mock
     private EmployeeRepository employeeRepository;
-
     @Mock
     private DepartmentRepository departmentRepository;
-
     @InjectMocks
     public EmployeeServiceImpl employeeServiceImpl;
 
