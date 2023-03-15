@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 public class QueueServiceImpl implements QueueService {
     private final Map<Client, Request> queueMap;
     private final QueueRepository queueRepository;
-    private final int averageWaitingTimeInMinutes = 10;
+    private static final int averageWaitingTimeInMinutes = 5*60;
     private final ObjectMapper mapper;
 
     public Queue getOrCreateQueue() {

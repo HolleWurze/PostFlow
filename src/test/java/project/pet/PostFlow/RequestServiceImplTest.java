@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.modelmapper.ModelMapper;
+import org.springframework.boot.test.context.SpringBootTest;
 import project.pet.PostFlow.enums.ClientPriority;
 import project.pet.PostFlow.enums.RequestType;
 import project.pet.PostFlow.model.dto.ClientDTO;

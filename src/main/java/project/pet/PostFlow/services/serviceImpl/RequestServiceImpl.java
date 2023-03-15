@@ -66,16 +66,16 @@ public class RequestServiceImpl implements RequestService {
 
     private String calculateEstimatedTime(Request request) {
         RequestType requestType = request.getRequestType();
-        int estimatedTime = 0;
+        Duration estimatedTime = Duration.ZERO;
         switch (requestType) {
             case GET_PARCEL:
-                estimatedTime = 10; // minutes
+                estimatedTime = Duration.ofMinutes(10);
                 break;
             case SEND_PARCEL:
-                estimatedTime = 20; // minutes
+                estimatedTime = Duration.ofMinutes(20);
                 break;
         }
-        return String.valueOf(estimatedTime);
+        return estimatedTime.toString();
     }
 
     @Override

@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.boot.test.context.SpringBootTest;
 import project.pet.PostFlow.model.dto.EmployeeDTO;
 import project.pet.PostFlow.model.entity.Department;
 import project.pet.PostFlow.model.entity.Employee;
@@ -153,6 +154,4 @@ public class EmployeeServiceImplTest {
         assertEquals(employeeList.get(1).getDepartment(), result.get(1).getDepartment());
         verify(employeeRepository, times(1)).findAll();
     }
-
-
 }

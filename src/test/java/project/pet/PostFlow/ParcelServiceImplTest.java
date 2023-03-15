@@ -1,11 +1,15 @@
 package project.pet.PostFlow;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
+import project.pet.PostFlow.customException.AlreadyExistsException;
 import project.pet.PostFlow.enums.Status;
 import project.pet.PostFlow.model.dto.ParcelDTO;
 import project.pet.PostFlow.model.entity.Client;
@@ -29,6 +33,15 @@ public class ParcelServiceImplTest {
     ParcelRepository parcelRepository;
     @InjectMocks
     ParcelServiceImpl parcelService;
+
+    private ParcelDTO parcelDTO;
+    private Parcel parcel;
+
+    @Before
+    public void setUp() {
+        parcelDTO = createTestParcelDTO();
+        parcel = createTestParcel();
+    }
 
     private ParcelDTO createTestParcelDTO() {
         ParcelDTO parcelDTO = new ParcelDTO();
@@ -65,21 +78,38 @@ public class ParcelServiceImplTest {
         verify(parcelRepository, times(1)).findAll();
     }
 
-//    @Test
-//    public void testCreateParcel() {
-//        ParcelDTO parcelDTO = createTestParcelDTO();
-//
-//        when(parcelRepository.existsById(anyLong())).thenReturn(false);
-//        when(parcelRepository.save(any())).thenReturn(new Parcel());
-//
-//        ParcelDTO result = parcelService.createParcel(parcelDTO);
-//
-//        assertNotNull(result, "Result is null");
-//    }
+    @Test
+    public void testCreateParcel_success() {
+        when(parcelRepository.findById(1L)).thenReturn(Optional.empty());
+        when(mapper.convertValue(parcelDTO, Parcel.class)).thenReturn(parcel);
+        when(parcelRepository.save(parcel)).thenReturn(parcel);
+        when(mapper.convertValue(parcel, ParcelDTO.class)).thenReturn(parcelDTO);
+
+        ParcelDTO createdParcelDTO = parcelService.createParcel(parcelDTO);
+
+        assertEquals(parcelDTO, createdParcelDTO);
+        verify(parcelRepository).findById(1L);
+        verify(mapper).convertValue(parcelDTO, Parcel.class);
+        verify(parcelRepository).save(parcel);
+        verify(mapper).convertValue(parcel, ParcelDTO.class);
+    }
+
+    @Test
+    public void testCreateParcel_existingId() {
+        when(parcelRepository.findById(1L)).thenReturn(Optional.of(parcel));
+
+        AlreadyExistsException exception = assertThrows(
+                AlreadyExistsException.class,
+                () -> parcelService.createParcel(parcelDTO)
+        );
+
+        assertEquals("Клиент с таким ID уже существует ", exception.getMessage());
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        verify(parcelRepository).findById(1L);
+    }
 
     @Test
     public void testGetParcelById() {
-        // arrange
         Long id = 1L;
         Parcel parcel = new Parcel();
         parcel.setId(id);

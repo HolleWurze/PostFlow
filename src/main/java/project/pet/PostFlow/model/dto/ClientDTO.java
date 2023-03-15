@@ -1,5 +1,6 @@
 package project.pet.PostFlow.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
 import project.pet.PostFlow.enums.ClientPriority;
@@ -10,6 +11,7 @@ import javax.persistence.Enumerated;
 
 @Getter
 @Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ClientDTO {
     Long id;
     String firstName;

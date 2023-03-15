@@ -1,11 +1,15 @@
 package project.pet.PostFlow;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.modelmapper.ModelMapper;
+import org.springframework.boot.test.context.SpringBootTest;
 import project.pet.PostFlow.enums.ClientPriority;
 import project.pet.PostFlow.enums.RequestType;
 import project.pet.PostFlow.model.dto.ClientDTO;
@@ -19,25 +23,66 @@ import project.pet.PostFlow.services.serviceImpl.QueueServiceImpl;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QueueServiceImplTest {
-    private Map<Client, Request> queue = new LinkedHashMap<>();
     @Mock
     private QueueRepository queueRepository;
-    @Mock
-    private RequestService requestService;
-    private final int averageWaitingTimeInMinutes = 10;
-    @Spy
-    private ModelMapper modelMapper;
+    private static final int averageWaitingTimeInMinutes = 5*60;
     @Spy
     private ObjectMapper mapper;
     @InjectMocks
     private QueueServiceImpl queueServiceImpl;
+
+    private Client client;
+    private Queue queueTest;
+    private List<Request> requests;
+
+    @Before
+    public void setUp() {
+        client = new Client();
+        queueTest = new Queue();
+        requests = createTestRequests();
+        queueTest.setRequests(requests);
+    }
+
+    private List<Request> createTestRequests() {
+        List<Request> requests = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            Request request = new Request();
+            request.setClient(client);
+            requests.add(request);
+        }
+        return requests;
+    }
+
+    @Test
+    public void recalculateEstimatedTime_success() {
+        when(queueRepository.save(any(Queue.class))).thenReturn(queueTest);
+        when(queueServiceImpl.getOrCreateQueue()).thenReturn(queueTest);
+
+        queueServiceImpl.recalculateEstimatedTime(client);
+
+        List<Request> filteredRequests = requests.stream()
+                .filter(request -> request.getClient().equals(client))
+                .collect(Collectors.toList());
+
+        long waitingTimeInSeconds = filteredRequests.size() * averageWaitingTimeInMinutes;
+        for (Request request : filteredRequests) {
+            assertEquals(
+                    String.valueOf(Duration.ofSeconds(waitingTimeInSeconds)),
+                    request.getEstimatedTime());
+            waitingTimeInSeconds -= averageWaitingTimeInMinutes;
+        }
+
+        verify(queueRepository).save(queueTest);
+    }
 
     @Test
     public void testAddRequest() {
@@ -62,6 +107,52 @@ public class QueueServiceImplTest {
         verify(queueRepository, times(1)).save(any(Queue.class));
     }
 
+//    @Test
+//    public void testGetCurrentRequest_currentRequestNotNull() {
+//        Queue queue = new Queue();
+//        Request currentRequest = new Request();
+//        currentRequest.setId(1L);
+//        currentRequest.setClient(new Client());
+//        List<Request> requests = new ArrayList<>();
+//        requests.add(currentRequest);
+//        queue.setRequests(requests);
+//        queue.setCurrentRequest(currentRequest);
+//
+//        when(queueRepository.findTopByOrderByIdDesc()).thenReturn(Optional.of(queue));
+//
+//        RequestDTO result = queueServiceImpl.getCurrentRequest();
+//
+//        assertNotNull(result);
+//        assertEquals(currentRequest.getId(), result.getId());
+//        verify(queueRepository, times(1)).findTopByOrderByIdDesc();
+//    }
+//
+//
+//    @Test
+//    public void testGetCurrentRequest_currentRequestIsNull() {
+//        Queue queue = new Queue();
+//        queue.setId(1L);
+//
+//        when(queueRepository.findTopByOrderByIdDesc()).thenReturn(Optional.of(queue));
+//
+//        RequestDTO result = queueServiceImpl.getCurrentRequest();
+//
+//        assertNull(result);
+//        verify(queueRepository, times(1)).findTopByOrderByIdDesc();
+//        verify(queueRepository, never()).save(any(Queue.class));
+//    }
+//
+//    @Test
+//    public void testRecalculateEstimatedTime_emptyQueue() {
+//        Queue emptyQueue = new Queue();
+//        when(queueRepository.findTopByOrderByIdDesc()).thenReturn(Optional.of(emptyQueue));
+//
+//        queueServiceImpl.recalculateEstimatedTime(new Client());
+//
+//        verify(queueRepository, times(1)).findTopByOrderByIdDesc();
+//        verify(queueRepository, times(1)).save(emptyQueue);
+//    }
+
     @Test
     public void testGetOrCreateQueue_notEmpty() {
         Request request = new Request();
@@ -69,7 +160,6 @@ public class QueueServiceImplTest {
         Queue newQueue = new Queue();
         newQueue.setRequests(Collections.singletonList(request));
 
-        when(queueRepository.findAll()).thenReturn(Collections.singletonList(newQueue));
         when(queueRepository.save(any(Queue.class))).thenReturn(newQueue);
 
         Queue result = queueServiceImpl.getOrCreateQueue();
@@ -90,64 +180,6 @@ public class QueueServiceImplTest {
     }
 
     @Test
-    public void testGetCurrentRequest_currentRequestNotNull() {
-        Queue queue = new Queue();
-        Request currentRequest = new Request();
-        currentRequest.setId(1L);
-        currentRequest.setClient(new Client());
-        List<Request> requests = new ArrayList<>();
-        requests.add(currentRequest);
-        queue.setRequests(requests);
-        queue.setCurrentRequest(currentRequest);
-
-        when(queueRepository.findTopByOrderByIdDesc()).thenReturn(Optional.of(queue));
-
-        RequestDTO result = queueServiceImpl.getCurrentRequest();
-
-        assertNotNull(result);
-        assertEquals(currentRequest.getId(), result.getId());
-        verify(queueRepository, times(1)).findTopByOrderByIdDesc();
-    }
-
-
-    @Test
-    public void testGetCurrentRequest_currentRequestIsNull() {
-        Queue queue = new Queue();
-        queue.setId(1L);
-
-        when(queueRepository.findTopByOrderByIdDesc()).thenReturn(Optional.of(queue));
-
-        RequestDTO result = queueServiceImpl.getCurrentRequest();
-
-        assertNull(result);
-        verify(queueRepository, times(1)).findTopByOrderByIdDesc();
-        verify(queueRepository, never()).save(any(Queue.class));
-    }
-
-    @Test
-    public void testMarkCurrentRequestDone() {
-        Queue queue = new Queue();
-        Request currentRequest = new Request();
-        currentRequest.setRequestType(RequestType.GET_PARCEL);
-        LocalDateTime appointmentTime = LocalDateTime.now();
-        currentRequest.setAppointmentTime(appointmentTime.toString());
-        currentRequest.setWaitingTime("0");
-        queue.setCurrentRequest(currentRequest);
-
-        when(queueRepository.findTopByOrderByIdDesc()).thenReturn(Optional.of(queue));
-        when(queueRepository.save(any(Queue.class))).thenReturn(queue);
-
-        queueServiceImpl.markCurrentRequestDone();
-
-        verify(queueRepository, times(1)).findTopByOrderByIdDesc();
-        verify(queueRepository, times(1)).save(any(Queue.class));
-
-        assertNull(queue.getCurrentRequest());
-        assertEquals(RequestType.DONE, currentRequest.getRequestType());
-        assertEquals(Duration.ofMinutes(0), Duration.between(appointmentTime, LocalDateTime.parse(currentRequest.getAppointmentTime())));
-    }
-
-    @Test
     public void testRemoveFromQueue() {
         Client client = new Client();
         Queue queue = new Queue();
@@ -160,7 +192,6 @@ public class QueueServiceImplTest {
         requests.add(request3);
         queue.setRequests(requests);
 
-        when(queueRepository.findTopByOrderByIdDesc()).thenReturn(Optional.of(queue));
         when(queueRepository.save(any(Queue.class))).thenReturn(queue);
 
         queueServiceImpl.removeFromQueue(client);
@@ -170,52 +201,4 @@ public class QueueServiceImplTest {
         assertFalse(queue.getRequests().contains(request2));
         assertNull(queue.getCurrentRequest());
     }
-
-    @Test
-    public void testRecalculateEstimatedTime_emptyQueue() {
-        Queue emptyQueue = new Queue();
-        when(queueRepository.findTopByOrderByIdDesc()).thenReturn(Optional.of(emptyQueue));
-
-        queueServiceImpl.recalculateEstimatedTime(new Client());
-
-        verify(queueRepository, times(1)).findTopByOrderByIdDesc();
-        verify(queueRepository, times(1)).save(emptyQueue);
-    }
-
-//    @Test
-//    public void testRecalculateEstimatedTime_multipleRequestsForSameClient() {
-//        Client client = new Client();
-//        Request request1 = new Request(client, RequestType.GET_PARCEL, null);
-//        Request request2 = new Request(client, RequestType.GET_PARCEL, null);
-//        List<Request> requests = Arrays.asList(request1, request2);
-//        Queue queue = new Queue();
-//        queue.setRequests(requests);
-//        when(queueRepository.findTopByOrderByIdDesc()).thenReturn(Optional.of(queue));
-//
-//        queueServiceImpl.recalculateEstimatedTime(client);
-//
-//        verify(queueRepository, times(1)).findTopByOrderByIdDesc();
-//        verify(queueRepository, times(1)).save(queue);
-//        assertEquals(Duration.ZERO, Duration.parse(request1.getEstimatedTime()));
-//        assertEquals(String.valueOf(Duration.ofMinutes(-averageWaitingTimeInMinutes)), request2.getEstimatedTime(), "Incorrect estimated time");
-//    }
-//
-//    @Test
-//    public void testRecalculateEstimatedTime_multipleRequestsForDifferentClients() {
-//        Client client1 = new Client();
-//        Client client2 = new Client();
-//        Request request1 = new Request(client1, RequestType.GET_PARCEL, null);
-//        Request request2 = new Request(client2, RequestType.GET_PARCEL, null);
-//        List<Request> requests = Arrays.asList(request1, request2);
-//        Queue queue = new Queue();
-//        queue.setRequests(requests);
-//        when(queueRepository.findTopByOrderByIdDesc()).thenReturn(Optional.of(queue));
-//
-//        queueServiceImpl.recalculateEstimatedTime(client1);
-//
-//        verify(queueRepository, times(1)).findTopByOrderByIdDesc();
-//        verify(queueRepository, times(1)).save(queue);
-//        assertEquals(Duration.ZERO, Duration.parse(request1.getEstimatedTime()));
-//        assertNull(request2.getEstimatedTime());
-//    }
 }

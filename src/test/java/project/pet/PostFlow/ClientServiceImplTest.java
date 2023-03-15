@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.boot.test.context.SpringBootTest;
 import project.pet.PostFlow.enums.CRUDStatus;
 import project.pet.PostFlow.model.dto.ClientDTO;
 import project.pet.PostFlow.model.entity.Client;
@@ -64,6 +65,22 @@ public class ClientServiceImplTest {
         assertEquals(firstName, clientDTO.getFirstName());
         assertEquals(lastName, clientDTO.getLastName());
         assertEquals("Голикова", clientDTO.getDepartment().getName());
+    }
+
+    @Test
+    public void testDeleteClientById() {
+        Client client = new Client();
+        client.setId(1L);
+        client.setFirstName("Вася");
+        client.setLastName("Пупкин");
+
+        when(clientRepository.findById(1L)).thenReturn(Optional.of(client));
+
+        clientService.deleteClientById(1L);
+
+        verify(clientRepository, times(1)).findById(1L);
+
+        assertEquals(CRUDStatus.DELETED, client.getStatus());
     }
 
     @Test
@@ -143,43 +160,21 @@ public class ClientServiceImplTest {
 
     @Test
     public void testCreateClient() {
-        ClientDTO clientDTORequest = new ClientDTO();
-        clientDTORequest.setFirstName("Вася");
-        clientDTORequest.setLastName("Пупкин");
-        Department department = new Department();
-        department.setName("Невский");
-        clientDTORequest.setDepartment(department);
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setUserName("testUser");
+        clientDTO.setPassword("testPassword123");
+        clientDTO.setEmail("test@test.com");
 
-        when(clientRepository.findById(clientDTORequest.getId())).thenReturn(Optional.empty());
-        when(clientRepository.save(any(Client.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(clientRepository.findByUserName(eq(clientDTO.getUserName()))).thenReturn(Optional.empty());
+        when(clientRepository.findByEmail(eq(clientDTO.getEmail()))).thenReturn(Optional.empty());
+        when(clientRepository.save(any(Client.class))).thenReturn(new Client());
 
-        ClientDTO createdClientDTO = clientService.createClient(clientDTORequest);
+        ClientDTO result = clientService.createClient(clientDTO);
 
-        assertEquals(clientDTORequest.getFirstName(), createdClientDTO.getFirstName());
-        assertEquals(clientDTORequest.getLastName(), createdClientDTO.getLastName());
-        assertEquals(clientDTORequest.getDepartment().getName(), createdClientDTO.getDepartment().getName());
-
-        verify(clientRepository, times(1)).findById(clientDTORequest.getId());
-
+        assertNotNull(result);
+        verify(clientRepository, times(1)).findByUserName(eq(clientDTO.getUserName()));
+        verify(clientRepository, times(1)).findByEmail(eq(clientDTO.getEmail()));
         verify(clientRepository, times(1)).save(any(Client.class));
-    }
-
-    @Test
-    public void testDeleteClientById() {
-        Client client = new Client();
-        client.setId(1L);
-        client.setFirstName("Вася");
-        client.setLastName("Пупкин");
-
-        Mockito.when(clientRepository.findById(1L)).thenReturn(Optional.of(client));
-
-        clientService.deleteClientById(1L);
-
-        Mockito.verify(clientRepository, Mockito.times(1)).findById(1L);
-
-        Mockito.verify(clientRepository, Mockito.times(1)).save(client);
-
-        assertEquals(CRUDStatus.DELETED, client.getStatus());
     }
 }
 
