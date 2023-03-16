@@ -30,7 +30,6 @@ public class RequestServiceImpl implements RequestService {
     private final ModelMapper modelMapper;
     private final ObjectMapper mapper;
 
-
     @Override
     public RequestDTO createRequest(ClientDTO clientDTO, RequestType requestType, String appointmentTime) {
         Client client = new Client();
