@@ -8,6 +8,8 @@ import project.pet.PostFlow.model.entity.Department;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 
 @Getter
 @Setter
@@ -17,8 +19,10 @@ public class ClientDTO {
     String firstName;
     String lastName;
     Department department;
+    @NotBlank
     String userName;
     String password;
+    @Email
     String email;
     @Enumerated(EnumType.STRING)
     ClientPriority clientPriority;

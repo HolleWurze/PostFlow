@@ -1,4 +1,4 @@
-package project.pet.PostFlow.controllers.rest;
+package project.pet.PostFlow.controllers;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -64,7 +64,7 @@ public class RequestController {
         return ResponseEntity.ok(updatedRequest);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete_from_queue")
     public ResponseEntity<Void> deleteRequest(@PathVariable("id") Long id) throws ResourceNotFoundException {
         boolean deleted = requestService.deleteRequestById(id);
         if (!deleted) {

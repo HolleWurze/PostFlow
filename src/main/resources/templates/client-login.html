@@ -18,6 +18,10 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
         }
 
     </style>
@@ -49,13 +53,13 @@
     <label for="password">Пароль:</label>
     <input type="password" id="password" name="password" required><br>
 
-    <button type="submit" class="btn" onclick="location.href='RequestSelection.html'">Войти</button>
+    <button type="submit" class="btn" onclick="location.href='request-selection.html'">Войти</button>
 
     <button type="back" class="btn" onclick="history.back()">Назад</button>
 </form>
 
 <script>
-    function login() {
+    function clientLogin() {
         const username = document.getElementById("username").value;
         const password = document.getElementById("password").value;
 
@@ -74,7 +78,7 @@
             .then(response => {
                 if (response.ok) {
                     // успешный вход
-                    window.location.href = "RequestSelection.html";
+                    window.location.href = "request-selection.html";
                 } else {
                     alert("Неверное имя пользователя или пароль");
                 }
@@ -87,7 +91,7 @@
     const form = document.getElementById("login-form");
     form.addEventListener("submit", event => {
         event.preventDefault();
-        login();
+        clientLogin();
     });
 </script>
 </body>

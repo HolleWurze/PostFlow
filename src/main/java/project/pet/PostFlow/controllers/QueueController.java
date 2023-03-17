@@ -1,4 +1,4 @@
-package project.pet.PostFlow.controllers.rest;
+package project.pet.PostFlow.controllers;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

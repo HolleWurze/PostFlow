@@ -1,4 +1,4 @@
-package project.pet.PostFlow.utlil;
+package project.pet.PostFlow;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

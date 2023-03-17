@@ -107,51 +107,51 @@ public class QueueServiceImplTest {
         verify(queueRepository, times(1)).save(any(Queue.class));
     }
 
-//    @Test
-//    public void testGetCurrentRequest_currentRequestNotNull() {
-//        Queue queue = new Queue();
-//        Request currentRequest = new Request();
-//        currentRequest.setId(1L);
-//        currentRequest.setClient(new Client());
-//        List<Request> requests = new ArrayList<>();
-//        requests.add(currentRequest);
-//        queue.setRequests(requests);
-//        queue.setCurrentRequest(currentRequest);
-//
-//        when(queueRepository.findTopByOrderByIdDesc()).thenReturn(Optional.of(queue));
-//
-//        RequestDTO result = queueServiceImpl.getCurrentRequest();
-//
-//        assertNotNull(result);
-//        assertEquals(currentRequest.getId(), result.getId());
-//        verify(queueRepository, times(1)).findTopByOrderByIdDesc();
-//    }
-//
-//
-//    @Test
-//    public void testGetCurrentRequest_currentRequestIsNull() {
-//        Queue queue = new Queue();
-//        queue.setId(1L);
-//
-//        when(queueRepository.findTopByOrderByIdDesc()).thenReturn(Optional.of(queue));
-//
-//        RequestDTO result = queueServiceImpl.getCurrentRequest();
-//
-//        assertNull(result);
-//        verify(queueRepository, times(1)).findTopByOrderByIdDesc();
-//        verify(queueRepository, never()).save(any(Queue.class));
-//    }
-//
-//    @Test
-//    public void testRecalculateEstimatedTime_emptyQueue() {
-//        Queue emptyQueue = new Queue();
-//        when(queueRepository.findTopByOrderByIdDesc()).thenReturn(Optional.of(emptyQueue));
-//
-//        queueServiceImpl.recalculateEstimatedTime(new Client());
-//
-//        verify(queueRepository, times(1)).findTopByOrderByIdDesc();
-//        verify(queueRepository, times(1)).save(emptyQueue);
-//    }
+    @Test
+    public void testGetCurrentRequest_currentRequestNotNull() {
+        Queue queue = new Queue();
+        Request currentRequest = new Request();
+        currentRequest.setId(1L);
+        currentRequest.setClient(new Client());
+        List<Request> requests = new ArrayList<>();
+        requests.add(currentRequest);
+        queue.setRequests(requests);
+        queue.setCurrentRequest(currentRequest);
+
+        when(queueRepository.findTopByOrderByIdDesc()).thenReturn(Optional.of(queue));
+
+        RequestDTO result = queueServiceImpl.getCurrentRequest();
+
+        assertNotNull(result);
+        assertEquals(currentRequest.getId(), result.getId());
+        verify(queueRepository, times(1)).findTopByOrderByIdDesc();
+    }
+
+
+    @Test
+    public void testGetCurrentRequest_currentRequestIsNull() {
+        Queue queue = new Queue();
+        queue.setId(1L);
+
+        when(queueRepository.findTopByOrderByIdDesc()).thenReturn(Optional.of(queue));
+
+        RequestDTO result = queueServiceImpl.getCurrentRequest();
+
+        assertNull(result);
+        verify(queueRepository, times(1)).findTopByOrderByIdDesc();
+        verify(queueRepository, never()).save(any(Queue.class));
+    }
+
+    @Test
+    public void testRecalculateEstimatedTime_emptyQueue() {
+        Queue emptyQueue = new Queue();
+        when(queueRepository.findTopByOrderByIdDesc()).thenReturn(Optional.of(emptyQueue));
+
+        queueServiceImpl.recalculateEstimatedTime(new Client());
+
+        verify(queueRepository, times(1)).findTopByOrderByIdDesc();
+        verify(queueRepository, times(1)).save(emptyQueue);
+    }
 
     @Test
     public void testGetOrCreateQueue_notEmpty() {

@@ -18,6 +18,10 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
         }
     </style>
     <style>
@@ -42,13 +46,13 @@
 <body>
 <h1>Регистрация клиента</h1>
 <form id="add-client-form">
-    <label for="firstName">Имя:</label>
-    <input type="text" id="firstName" name="firstName" required><br>
-    <label for="lastName">Фамилия:</label>
-    <input type="text" id="lastName" name="lastName" required><br>
+    <label for="first-name">Имя:</label>
+    <input type="text" id="first-name" name="firstName" required>
+    <label for="last-name">Фамилия:</label>
+    <input type="text" id="last-name" name="lastName" required><br>
 
-    <label for="userName">Имя пользователя:</label>
-    <input type="text" id="userName" name="userName" required><br>
+    <label for="user-name">Имя пользователя:</label>
+    <input type="text" id="user-name" name="userName" required><br>
 
     <label for="password">Пароль:</label>
     <input type="password" id="password" name="password" required><br>
@@ -76,21 +80,21 @@
 
 </form>
 <script>
-    const form = document.getElementById("add-client-form");
-    form.addEventListener("submit", event => {
+    document.getElementById("add-client-form").addEventListener("submit", event => {
         event.preventDefault();
         addClient();
     });
 
-    function addClient() {
+    async function addClient() {
+        console.log("addClient called");
         const firstName = document.getElementById("first-name").value;
         const lastName = document.getElementById("last-name").value;
-        const userName = document.getElementById("userName").value;
+        const userName = document.getElementById("user-name").value;
         const password = document.getElementById("password").value;
         const email = document.getElementById("email").value;
         const department = document.getElementById("department").value;
 
-        const data = {
+        const client = {
             firstName: firstName,
             lastName: lastName,
             userName: userName,
@@ -99,30 +103,31 @@
             department: department
         };
 
-        fetch("/register/create", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(data)
-        })
-            .then(response => {
-                if (response.ok) {
-                    // клиент успешно зарегистрирован
-                    registrationSuccess();
-                } else {
-                    console.error("Ошибка при регистрации клиента: ", response.status);
-                }
-            })
-            .catch(error => {
-                console.error("Ошибка при регистрации клиента: ", error);
-                alert("Произошла ошибка при регистрации клиента");
+        try {
+            const response = await fetch("http://localhost:8090/register/create", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(client)
             });
+
+            console.log("Response received:", response);
+
+            if (response.ok) {
+                registrationSuccess();
+            } else {
+                console.error("Ошибка при регистрации клиента: ", response.status);
+            }
+        } catch (error) {
+            console.error("Ошибка при регистрации клиента: ", error);
+            alert("Произошла ошибка при регистрации клиента");
+        }
     }
 
     function registrationSuccess() {
         alert("Регистрация прошла успешно!");
-        window.location.href = "login.html";
+        window.location.href = "client-login";
     }
 </script>
 </body>

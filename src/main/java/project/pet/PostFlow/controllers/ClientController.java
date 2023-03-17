@@ -1,4 +1,4 @@
-package project.pet.PostFlow.controllers.rest;
+package project.pet.PostFlow.controllers;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +8,7 @@ import project.pet.PostFlow.model.dto.ClientDTO;;
 import project.pet.PostFlow.model.entity.Client;
 import project.pet.PostFlow.services.service.ClientService;
 
+import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +33,7 @@ public class ClientController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<ClientDTO> createClient(@RequestBody ClientDTO clientDTO) {
+    public ResponseEntity<ClientDTO> createClient(@Valid @RequestBody ClientDTO clientDTO) {
         return ResponseEntity.ok(clientService.createClient(clientDTO));
     }
 

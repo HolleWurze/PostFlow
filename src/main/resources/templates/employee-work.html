@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Страница сотрудника</title>
+  <style>
+    body {
+      background: linear-gradient(to bottom right, #f5f5f5, #bdc4c2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    h1 {
+      text-align: left;
+      margin-left: 20px;
+    }
+
+    #queue {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 30px;
+    }
+
+    #queue table {
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    #queue table th,
+    #queue table td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+
+    #queue table th {
+      background-color: #054989;
+      color: #fff;
+    }
+
+    #queue button {
+        background-color: #054989;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-right: 10px;
+    }
+
+    #queue button:hover {
+        background-color: #115ca7;
+    }
+
+    #logout-btn {
+      margin-top: 30px;
+    }
+
+    #logout-btn a {
+      display: inline-block;
+      padding: 10px;
+      background-color: #054989;
+      border-radius: 5px;
+      text-decoration: none;
+      color: #fff;
+    }
+
+    #logout-btn a:hover {
+      background-color: #115ca7;
+      color: #fff;
+    }
+
+  </style>
+</head>
+<body>
+<h1>Добрый день, Евгений Почтмейстер</h1>
+<div id="queue">
+  <h2>Очередь</h2>
+  <table>
+    <thead>
+    <tr>
+      <th>Номер</th>
+      <th>Клиент</th>
+      <th>Тип запроса</th>
+      <th>Статус</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>1</td>
+      <td>Павел Иванович</td>
+      <td>Получить письмо</td>
+      <td>Выполняется</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Алексей Плюшкин</td>
+      <td>Отправить письмо</td>
+      <td>Ожидание</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>Селифан Сидоров</td>
+      <td>Получить письмо</td>
+      <td>Ожидание</td>
+    </tr>
+    </tbody>
+  </table>
+  <button id="invite-next-btn">Пригласить следующего клиента</button>
+  <button id="remove-selected-btn">Удалить выбранного клиента из очереди</button>
+  <button id="mark-done-btn">Завершить выполнение текущего запроса</button>
+  <button id="logout-btn">Выход</button>
+</div>

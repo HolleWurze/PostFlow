@@ -45,8 +45,8 @@
     <button id="return-to-queue-btn">Вернуться в очередь</button>
 </div>
 <ul>
-    <li><a href="/requests/create_request?requestType=GET_PARCEL">Получить посылку</a></li>
-    <li><a href="/requests/create_request?requestType=SEND_PARCEL">Отправить посылку</a></li>
+    <li><a href="/requests/create_request?requestType=GET_PARCEL">Получить письмо</a></li>
+    <li><a href="/requests/create_request?requestType=SEND_PARCEL">Отправить письмо</a></li>
 </ul>
 
 <script>
@@ -60,7 +60,7 @@
             fetch(queueUrl)
                 .then(response => {
                     if (response.ok) {
-                        window.location.href = "waitingPage.html";
+                        window.location.href = "waiting-page.html";
                     } else if (response.status === 409) {
                         // клиент уже находится в очереди
                         document.getElementById('queue-info').style.display = 'block';
@@ -79,7 +79,7 @@
             fetch('/requests/delete_from_queue', {method: 'DELETE'})
                 .then(response => {
                     if (response.ok) {
-                        window.location.href = "waitingPage.html";
+                        window.location.href = "waiting-page.html";
                     } else {
                         console.error('Ошибка при удалении клиента из очереди: ', response.status);
                     }

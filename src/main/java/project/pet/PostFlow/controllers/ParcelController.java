@@ -1,4 +1,4 @@
-package project.pet.PostFlow.controllers.rest;
+package project.pet.PostFlow.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;

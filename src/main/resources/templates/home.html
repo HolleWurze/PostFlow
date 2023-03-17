@@ -41,14 +41,33 @@
         h1 {
             text-align: center;
         }
+
+        .employee-login-link {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            text-align: right;
+        }
+
+        .employee-login-link a {
+            background-color: #054989;
+        }
+
+        .employee-login-link a:hover {
+            background-color: #115ca7;
+        }
     </style>
 </head>
 <body>
 <h1>Добро пожаловать на главную страницу PostFlow</h1>
 <p>Выберите одну из следующих опций:</p>
 <ul>
-    <li><a href="login.html">Вход для клиента</a></li>
-    <li><a href="registration.html">Регистрация клиента</a></li>
+    <li><a href="client-login">Вход для клиента</a></li>
+    <li><a href="registration-client">Регистрация клиента</a></li>
 </ul>
+<div class="employee-login-link">
+    <p>Вход для сотрудников:</p>
+    <a href="employee-login">Вход</a>
+</div>
 </body>
 </html>
